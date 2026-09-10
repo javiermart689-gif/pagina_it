@@ -1,0 +1,71 @@
+@model SearchResultViewModel
+@{
+    ViewData["Title"] = "Buscar";
+}
+<h3 class="mb-3">Resultados de búsqueda: "@ViewBag.Term"</h3>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card-panel h-100">
+            <h6>Usuarios</h6>
+            @if (!Model.Employees.Any())
+            {
+                <p class="text-muted small mb-0">Sin resultados.</p>
+            }
+            else
+            {
+                <ul class="list-unstyled mb-0">
+                    @foreach (var e in Model.Employees)
+                    {
+                        <li class="mb-2">
+                            <a asp-controller="Employees" asp-action="Details" asp-route-id="@e.Id">@e.FullName</a><br />
+                            <small class="text-muted">@e.Department &middot; @e.Position</small>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card-panel h-100">
+            <h6>Equipos</h6>
+            @if (!Model.Devices.Any())
+            {
+                <p class="text-muted small mb-0">Sin resultados.</p>
+            }
+            else
+            {
+                <ul class="list-unstyled mb-0">
+                    @foreach (var d in Model.Devices)
+                    {
+                        <li class="mb-2">
+                            <a asp-controller="Devices" asp-action="Details" asp-route-id="@d.Id">@d.Title</a><br />
+                            <small class="text-muted">@d.InventoryNumber &middot; @d.Status</small>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card-panel h-100">
+            <h6>Correo</h6>
+            @if (!Model.Emails.Any())
+            {
+                <p class="text-muted small mb-0">Sin resultados.</p>
+            }
+            else
+            {
+                <ul class="list-unstyled mb-0">
+                    @foreach (var e in Model.Emails)
+                    {
+                        <li class="mb-2">
+                            <a asp-controller="EmailAccounts" asp-action="Details" asp-route-id="@e.Id">@e.Email</a><br />
+                            <small class="text-muted">@e.EmployeeName</small>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+</div>

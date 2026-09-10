@@ -1,0 +1,203 @@
+:root {
+    --optivosa-primary: #185abd;
+    --optivosa-primary-dark: #0f3f8a;
+    --optivosa-bg: #f5f6f8;
+    --optivosa-sidebar-bg: #14233b;
+    --optivosa-sidebar-text: #c9d4e3;
+    --optivosa-sidebar-active: #1f3a63;
+    --optivosa-border: #e1e4e8;
+}
+
+body {
+    background-color: var(--optivosa-bg);
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #1f2328;
+}
+
+.app-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+.app-sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background-color: var(--optivosa-sidebar-bg);
+    color: var(--optivosa-sidebar-text);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: 1.1rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    font-size: .95rem;
+}
+
+.brand-mark {
+    background: var(--optivosa-primary);
+    color: #fff;
+    font-weight: 700;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brand-text strong {
+    color: #fff;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    padding: .75rem .5rem;
+    gap: .15rem;
+}
+
+.sidebar-nav .nav-link {
+    color: var(--optivosa-sidebar-text);
+    padding: .55rem .75rem;
+    border-radius: 6px;
+    font-size: .92rem;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+}
+
+.sidebar-nav .nav-link:hover {
+    background-color: var(--optivosa-sidebar-active);
+    color: #fff;
+}
+
+.bi-icon {
+    font-style: normal;
+    width: 1.2rem;
+    text-align: center;
+}
+
+.app-main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.app-topbar {
+    background: #fff;
+    border-bottom: 1px solid var(--optivosa-border);
+    padding: .6rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.global-search {
+    flex-grow: 1;
+    max-width: 480px;
+}
+
+.app-content {
+    padding: 1.5rem;
+    flex-grow: 1;
+}
+
+.stat-card {
+    background: #fff;
+    border: 1px solid var(--optivosa-border);
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem;
+    height: 100%;
+}
+
+.stat-card .stat-value {
+    font-size: 1.9rem;
+    font-weight: 600;
+    color: var(--optivosa-primary-dark);
+}
+
+.stat-card .stat-label {
+    color: #616a75;
+    font-size: .85rem;
+}
+
+.card-panel {
+    background: #fff;
+    border: 1px solid var(--optivosa-border);
+    border-radius: 10px;
+    padding: 1.25rem;
+}
+
+.simple-bar-row {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: .5rem;
+}
+
+.simple-bar-label {
+    width: 140px;
+    font-size: .85rem;
+    color: #444;
+    flex-shrink: 0;
+}
+
+.simple-bar-track {
+    flex-grow: 1;
+    background: #eef1f5;
+    border-radius: 5px;
+    height: 10px;
+    overflow: hidden;
+}
+
+.simple-bar-fill {
+    background: var(--optivosa-primary);
+    height: 100%;
+}
+
+.simple-bar-value {
+    width: 32px;
+    text-align: right;
+    font-size: .82rem;
+    color: #444;
+}
+
+.login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--optivosa-sidebar-bg), var(--optivosa-primary-dark));
+}
+
+.login-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 45px rgba(0,0,0,.25);
+}
+
+.password-mask {
+    font-family: "Courier New", monospace;
+    letter-spacing: 2px;
+}
+
+.table-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 900px) {
+    .app-sidebar { display: none; }
+}

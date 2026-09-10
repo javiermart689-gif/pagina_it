@@ -1,0 +1,136 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Dashboard</h3>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">@Model.TotalDevices</div>
+            <div class="stat-label">Total de equipos</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">@Model.AssignedDevices</div>
+            <div class="stat-label">Equipos asignados</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">@Model.AvailableDevices</div>
+            <div class="stat-label">Equipos disponibles</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">@Model.MaintenanceDevices</div>
+            <div class="stat-label">Equipos en mantenimiento</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">@Model.RetiredDevices</div>
+            <div class="stat-label">Equipos dados de baja</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">@Model.TotalEmployees</div>
+            <div class="stat-label">Total de usuarios</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">@Model.TotalEmailAccounts</div>
+            <div class="stat-label">Cuentas de correo</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card-panel">
+            <h6 class="mb-3">Equipos por estado</h6>
+            @foreach (var item in Model.DevicesByStatus)
+            {
+                var pct = Model.TotalDevices == 0 ? 0 : (item.Count * 100 / Model.TotalDevices);
+                <div class="simple-bar-row">
+                    <div class="simple-bar-label">@item.Label</div>
+                    <div class="simple-bar-track"><div class="simple-bar-fill" style="width:@(pct)%"></div></div>
+                    <div class="simple-bar-value">@item.Count</div>
+                </div>
+            }
+            @if (!Model.DevicesByStatus.Any())
+            {
+                <p class="text-muted small mb-0">Sin datos aún.</p>
+            }
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card-panel">
+            <h6 class="mb-3">Equipos por tipo</h6>
+            @foreach (var item in Model.DevicesByType)
+            {
+                var pct = Model.TotalDevices == 0 ? 0 : (item.Count * 100 / Model.TotalDevices);
+                <div class="simple-bar-row">
+                    <div class="simple-bar-label">@item.Label</div>
+                    <div class="simple-bar-track"><div class="simple-bar-fill" style="width:@(pct)%"></div></div>
+                    <div class="simple-bar-value">@item.Count</div>
+                </div>
+            }
+            @if (!Model.DevicesByType.Any())
+            {
+                <p class="text-muted small mb-0">Sin datos aún.</p>
+            }
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card-panel">
+            <h6 class="mb-3">Equipos por departamento</h6>
+            @foreach (var item in Model.DevicesByDepartment)
+            {
+                var pct = Model.TotalDevices == 0 ? 0 : (item.Count * 100 / Model.TotalDevices);
+                <div class="simple-bar-row">
+                    <div class="simple-bar-label">@item.Label</div>
+                    <div class="simple-bar-track"><div class="simple-bar-fill" style="width:@(pct)%"></div></div>
+                    <div class="simple-bar-value">@item.Count</div>
+                </div>
+            }
+            @if (!Model.DevicesByDepartment.Any())
+            {
+                <p class="text-muted small mb-0">Sin datos aún.</p>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="card-panel">
+    <h6 class="mb-3">Actividad reciente</h6>
+    @if (!Model.RecentActivity.Any())
+    {
+        <p class="text-muted small mb-0">Todavía no hay actividad registrada.</p>
+    }
+    else
+    {
+        <table class="table table-sm">
+            <thead>
+                <tr><th>Fecha</th><th>Acción</th><th>Detalle</th><th>Usuario</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.RecentActivity)
+                {
+                    <tr>
+                        <td class="text-nowrap">@item.Timestamp.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@item.Action</td>
+                        <td>@item.Details</td>
+                        <td>@item.UserName</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

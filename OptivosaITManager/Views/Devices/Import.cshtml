@@ -1,0 +1,18 @@
+@{
+    ViewData["Title"] = "Importar equipos desde Excel";
+}
+<h3 class="mb-3">Importar equipos desde Excel</h3>
+<div class="card-panel" style="max-width:600px">
+    <p class="text-muted">
+        El archivo <code>.xlsx</code> debe incluir al menos las columnas <code>InventoryNumber</code>, <code>DeviceType</code> y
+        <code>Status</code>. Columnas opcionales: <code>Brand</code>, <code>Model</code>, <code>SerialNumber</code>,
+        <code>ComputerName</code>, <code>OperatingSystem</code>, <code>Notes</code>.
+    </p>
+    <form asp-action="ImportPreview" method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+            <input type="file" name="file" class="form-control" accept=".xlsx" required />
+        </div>
+        <button type="submit" class="btn btn-primary">Validar archivo</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+    </form>
+</div>

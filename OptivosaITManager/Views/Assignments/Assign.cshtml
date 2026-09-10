@@ -1,0 +1,31 @@
+@model AssignViewModel
+@{
+    ViewData["Title"] = "Asignar equipo";
+}
+<h3 class="mb-3">Asignar equipo</h3>
+<div class="card-panel" style="max-width:600px">
+    <p><strong>Equipo:</strong> @Model.Device?.InventoryNumber &mdash; @Model.Device?.Brand @Model.Device?.Model</p>
+    <form asp-action="Assign" method="post">
+        <input type="hidden" asp-for="DeviceId" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="EmployeeId" class="form-label">Usuario</label>
+            <select asp-for="EmployeeId" class="form-select"
+                    asp-items="@(new SelectList(Model.Employees, "Id", "FullName"))">
+                <option value="">-- Seleccione --</option>
+            </select>
+            <span asp-validation-for="EmployeeId" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Notes" class="form-label"></label>
+            <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Confirmar asignación</button>
+        <a asp-controller="Devices" asp-action="Details" asp-route-id="@Model.DeviceId" class="btn btn-outline-secondary">Cancelar</a>
+    </form>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

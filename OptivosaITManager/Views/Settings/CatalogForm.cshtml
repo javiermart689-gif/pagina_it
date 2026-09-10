@@ -1,0 +1,34 @@
+@model CatalogItemFormViewModel
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Nuevo registro" : "Editar registro";
+}
+<h3 class="mb-3">@ViewData["Title"]</h3>
+<div class="card-panel" style="max-width:500px">
+    <form method="post">
+        <input type="hidden" asp-for="Id" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label">Descripción / Dirección</label>
+            <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+        </div>
+        @if (Model.Id != 0)
+        {
+            <div class="mb-3 form-check">
+                <input asp-for="IsActive" class="form-check-input" />
+                <label asp-for="IsActive" class="form-check-label"></label>
+            </div>
+        }
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+    </form>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

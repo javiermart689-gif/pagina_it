@@ -1,0 +1,24 @@
+@model IEnumerable<Location>
+@{
+    ViewData["Title"] = "Ubicaciones";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Ubicaciones</h3>
+    <a class="btn btn-primary" asp-action="LocationCreate">Nueva ubicación</a>
+</div>
+<div class="card-panel">
+    <table class="table table-hover align-middle">
+        <thead><tr><th>Nombre</th><th>Dirección</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var l in Model)
+            {
+                <tr>
+                    <td>@l.Name</td>
+                    <td>@l.Address</td>
+                    <td><span class="badge @(l.IsActive ? "text-bg-success" : "text-bg-secondary")">@(l.IsActive ? "Activo" : "Inactivo")</span></td>
+                    <td class="text-end"><a class="btn btn-sm btn-outline-secondary" asp-action="LocationEdit" asp-route-id="@l.Id">Editar</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

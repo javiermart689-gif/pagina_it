@@ -1,0 +1,62 @@
+@model ExcelImportPreviewViewModel
+@{
+    ViewData["Title"] = "Vista previa de importación";
+}
+<h3 class="mb-3">Vista previa de importación</h3>
+
+<div class="row g-3 mb-3">
+    <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-value">@Model.TotalRows</div><div class="stat-label">Registros encontrados</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-value text-success">@Model.ValidCount</div><div class="stat-label">Válidos</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-value text-warning">@Model.DuplicateCount</div><div class="stat-label">Duplicados</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card"><div class="stat-value text-danger">@Model.ErrorCount</div><div class="stat-label">Errores / Incompletos: @Model.IncompleteCount</div></div>
+    </div>
+</div>
+
+<div class="card-panel mb-3">
+    <table class="table table-sm">
+        <thead><tr><th>Fila</th><th>Inventario</th><th>Equipo</th><th>Estado</th><th>Mensaje</th></tr></thead>
+        <tbody>
+            @foreach (var row in Model.Rows)
+            {
+                <tr>
+                    <td>@row.RowNumber</td>
+                    <td>@row.InventoryNumber</td>
+                    <td>@row.ComputerName</td>
+                    <td>
+                        @{
+                            var badge = row.Status switch
+                            {
+                                ImportRowStatus.Valido => "text-bg-success",
+                                ImportRowStatus.Duplicado => "text-bg-warning",
+                                ImportRowStatus.Incompleto => "text-bg-secondary",
+                                _ => "text-bg-danger"
+                            };
+                        }
+                        <span class="badge @badge">@row.Status</span>
+                    </td>
+                    <td>@row.Message</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.ValidCount > 0)
+{
+    <form asp-action="ImportConfirm" method="post">
+        <input type="hidden" name="importToken" value="@Model.ImportToken" />
+        <button type="submit" class="btn btn-primary">Confirmar importación de @Model.ValidCount registros válidos</button>
+        <a asp-action="Import" class="btn btn-outline-secondary">Cancelar</a>
+    </form>
+}
+else
+{
+    <a asp-action="Import" class="btn btn-outline-secondary">Volver</a>
+}

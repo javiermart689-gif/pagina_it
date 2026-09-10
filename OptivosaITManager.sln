@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OptivosaITManager", "OptivosaITManager\OptivosaITManager.csproj", "{B807B001-0A14-47B2-A585-7310806F810E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B807B001-0A14-47B2-A585-7310806F810E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B807B001-0A14-47B2-A585-7310806F810E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B807B001-0A14-47B2-A585-7310806F810E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B807B001-0A14-47B2-A585-7310806F810E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

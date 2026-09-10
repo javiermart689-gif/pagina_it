@@ -1,0 +1,41 @@
+@model MaintenanceFormViewModel
+@{
+    ViewData["Title"] = "Actualizar mantenimiento";
+}
+<h3 class="mb-3">Actualizar mantenimiento</h3>
+<div class="card-panel" style="max-width:650px">
+    <p><strong>Equipo:</strong> @Model.Device?.InventoryNumber &mdash; @Model.Device?.Brand @Model.Device?.Model</p>
+    <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="DeviceId" />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="Problem" class="form-label"></label>
+            <textarea asp-for="Problem" class="form-control" rows="2"></textarea>
+            <span asp-validation-for="Problem" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Diagnosis" class="form-label"></label>
+            <textarea asp-for="Diagnosis" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Solution" class="form-label"></label>
+            <textarea asp-for="Solution" class="form-control" rows="2"></textarea>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Status" class="form-label"></label>
+            <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<MaintenanceStatus>()"></select>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Notes" class="form-label"></label>
+            <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a asp-controller="Devices" asp-action="Details" asp-route-id="@Model.DeviceId" class="btn btn-outline-secondary">Cancelar</a>
+    </form>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

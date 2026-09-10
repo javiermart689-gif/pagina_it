@@ -1,0 +1,65 @@
+@model IEnumerable<AuditLog>
+@{
+    ViewData["Title"] = "Auditoría";
+    var actions = (List<string>)ViewBag.Actions;
+    var entities = (List<string>)ViewBag.Entities;
+}
+<h3 class="mb-3">Auditoría</h3>
+
+<form method="get" class="table-toolbar card-panel">
+    <select name="action" class="form-select" style="max-width:220px">
+        <option value="">Todas las acciones</option>
+        @foreach (var a in actions)
+        {
+            <option value="@a" selected="@(a == (string)ViewBag.Action)">@a</option>
+        }
+    </select>
+    <select name="entityName" class="form-select" style="max-width:200px">
+        <option value="">Todas las entidades</option>
+        @foreach (var e in entities)
+        {
+            <option value="@e" selected="@(e == (string)ViewBag.EntityName)">@e</option>
+        }
+    </select>
+    <input type="date" name="from" value="@(((DateTime?)ViewBag.From)?.ToString("yyyy-MM-dd"))" class="form-control" style="max-width:160px" />
+    <input type="date" name="to" value="@(((DateTime?)ViewBag.To)?.ToString("yyyy-MM-dd"))" class="form-control" style="max-width:160px" />
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    <a asp-action="Index" class="btn btn-link">Limpiar</a>
+</form>
+
+<div class="card-panel">
+    <table class="table table-sm">
+        <thead><tr><th>Fecha</th><th>Usuario</th><th>Acción</th><th>Entidad</th><th>Detalle</th><th>IP</th></tr></thead>
+        <tbody>
+            @foreach (var log in Model)
+            {
+                <tr>
+                    <td class="text-nowrap">@log.Timestamp.ToLocalTime().ToString("dd/MM/yyyy HH:mm:ss")</td>
+                    <td>@(log.User?.DisplayName ?? "-")</td>
+                    <td>@log.Action</td>
+                    <td>@log.EntityName @(log.EntityId != null ? $"#{log.EntityId}" : "")</td>
+                    <td>@log.Details</td>
+                    <td>@log.IpAddress</td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr><td colspan="6" class="text-center text-muted py-4">No hay registros de auditoría.</td></tr>
+            }
+        </tbody>
+    </table>
+
+    @if ((int)ViewBag.TotalPages > 1)
+    {
+        <nav>
+            <ul class="pagination pagination-sm">
+                @for (var p = 1; p <= (int)ViewBag.TotalPages; p++)
+                {
+                    <li class="page-item @(p == (int)ViewBag.Page ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-action="@ViewBag.Action" asp-route-entityName="@ViewBag.EntityName">@p</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>

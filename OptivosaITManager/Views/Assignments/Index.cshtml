@@ -1,0 +1,32 @@
+@model IEnumerable<AssignmentListItemViewModel>
+@{
+    ViewData["Title"] = "Asignaciones activas";
+}
+<h3 class="mb-3">Asignaciones activas</h3>
+<div class="card-panel">
+    <table class="table table-hover align-middle">
+        <thead><tr><th>Inventario</th><th>Equipo</th><th>Usuario</th><th>Asignado desde</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var a in Model)
+            {
+                <tr>
+                    <td>@a.InventoryNumber</td>
+                    <td>@a.DeviceLabel</td>
+                    <td>@a.EmployeeName</td>
+                    <td>@a.AssignedAt.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-secondary" asp-controller="Devices" asp-action="Details" asp-route-id="@a.DeviceId">Ver equipo</a>
+                        @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+                        {
+                            <a class="btn btn-sm btn-primary" asp-action="Reassign" asp-route-deviceId="@a.DeviceId">Reasignar</a>
+                        }
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr><td colspan="5" class="text-center text-muted py-4">No hay asignaciones activas.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>

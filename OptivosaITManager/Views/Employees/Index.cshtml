@@ -1,0 +1,63 @@
+@model IEnumerable<Employee>
+@{
+    ViewData["Title"] = "Usuarios";
+    var departments = (List<Department>)ViewBag.Departments;
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Usuarios</h3>
+    @if (User.IsInRole(Roles.Administrador))
+    {
+        <a class="btn btn-primary" asp-action="Create">Nuevo usuario</a>
+    }
+</div>
+
+<form method="get" class="table-toolbar card-panel">
+    <input type="text" name="searchTerm" value="@ViewBag.SearchTerm" class="form-control" style="max-width:280px" placeholder="Nombre, número o correo..." />
+    <select name="departmentFilter" class="form-select" style="max-width:220px">
+        <option value="">Todos los departamentos</option>
+        @foreach (var d in departments)
+        {
+            <option value="@d.Id" selected="@(ViewBag.DepartmentFilter == d.Id)">@d.Name</option>
+        }
+    </select>
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    <a asp-action="Index" class="btn btn-link">Limpiar</a>
+</form>
+
+<div class="card-panel">
+    <table class="table table-hover align-middle">
+        <thead><tr><th>Nombre</th><th>Puesto</th><th>Departamento</th><th>Correo</th><th>Extensión</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var e in Model)
+            {
+                <tr>
+                    <td><a asp-action="Details" asp-route-id="@e.Id">@e.FirstName @e.LastName</a></td>
+                    <td>@e.Position</td>
+                    <td>@e.Department?.Name</td>
+                    <td>@e.Email</td>
+                    <td>@e.Extension</td>
+                    <td><span class="badge @(e.Status == EmployeeStatus.Activo ? "text-bg-success" : "text-bg-secondary")">@e.Status</span></td>
+                    <td class="text-end"><a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@e.Id">Ver</a></td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr><td colspan="7" class="text-center text-muted py-4">No se encontraron usuarios.</td></tr>
+            }
+        </tbody>
+    </table>
+
+    @if ((int)ViewBag.TotalPages > 1)
+    {
+        <nav>
+            <ul class="pagination pagination-sm">
+                @for (var p = 1; p <= (int)ViewBag.TotalPages; p++)
+                {
+                    <li class="page-item @(p == (int)ViewBag.Page ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-searchTerm="@ViewBag.SearchTerm" asp-route-departmentFilter="@ViewBag.DepartmentFilter">@p</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>

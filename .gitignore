@@ -1,0 +1,26 @@
+## .NET
+bin/
+obj/
+out/
+publish/
+
+## Rider/VS/VSCode
+.vs/
+.vscode/
+*.user
+*.suo
+.idea/
+
+## Datos e importaciones locales
+App_Data/
+
+## Logs
+*.log
+
+## Secretos y configuración local — NUNCA subir
+appsettings.Production.json
+appsettings.*.local.json
+*.pfx
+*.env
+.env
+secrets.json

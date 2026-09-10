@@ -1,0 +1,44 @@
+@model CreateUserViewModel
+@{
+    ViewData["Title"] = "Nuevo usuario del sistema";
+}
+<h3 class="mb-3">Nuevo usuario del sistema</h3>
+<div class="card-panel" style="max-width:500px">
+    <form asp-action="CreateUser" method="post">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="DisplayName" class="form-label"></label>
+            <input asp-for="DisplayName" class="form-control" />
+            <span asp-validation-for="DisplayName" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label"></label>
+            <input asp-for="Password" class="form-control" autocomplete="new-password" />
+            <span asp-validation-for="Password" class="text-danger small"></span>
+            <div class="form-text">Mínimo 10 caracteres, incluir mayúsculas y símbolos.</div>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Role" class="form-label"></label>
+            <select asp-for="Role" class="form-select">
+                <option value="">-- Seleccione --</option>
+                @foreach (var r in Model.AllRoles)
+                {
+                    <option value="@r">@r</option>
+                }
+            </select>
+            <span asp-validation-for="Role" class="text-danger small"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Crear usuario</button>
+        <a asp-action="Users" class="btn btn-outline-secondary">Cancelar</a>
+    </form>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

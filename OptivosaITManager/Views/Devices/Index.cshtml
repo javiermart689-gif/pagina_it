@@ -1,0 +1,122 @@
+@model DeviceListViewModel
+@{
+    ViewData["Title"] = "Equipos";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Equipos</h3>
+    <div>
+        @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+        {
+            <a class="btn btn-outline-secondary me-2" asp-action="Import">Importar Excel</a>
+            <a class="btn btn-primary" asp-action="Create">Nuevo equipo</a>
+        }
+    </div>
+</div>
+
+<form method="get" class="table-toolbar card-panel">
+    <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control" style="max-width:260px"
+           placeholder="Inventario, serie, hostname, marca, usuario..." />
+    <select name="typeFilter" class="form-select" style="max-width:170px">
+        <option value="">Todos los tipos</option>
+        @foreach (var t in Enum.GetValues<DeviceType>())
+        {
+            <option value="@t" selected="@(Model.TypeFilter == t)">@t</option>
+        }
+    </select>
+    <select name="statusFilter" class="form-select" style="max-width:170px">
+        <option value="">Todos los estados</option>
+        @foreach (var s in Enum.GetValues<DeviceStatus>())
+        {
+            <option value="@s" selected="@(Model.StatusFilter == s)">@s</option>
+        }
+    </select>
+    <select name="departmentFilter" class="form-select" style="max-width:200px">
+        <option value="">Todos los departamentos</option>
+        @foreach (var d in Model.Departments)
+        {
+            <option value="@d.Id" selected="@(Model.DepartmentFilter == d.Id)">@d.Name</option>
+        }
+    </select>
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    <a asp-action="Index" class="btn btn-link">Limpiar</a>
+</form>
+
+<div class="card-panel">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th><a asp-action="Index" asp-all-route-data="@GetSortRoute("InventoryNumber")">Inventario</a></th>
+                <th><a asp-action="Index" asp-all-route-data="@GetSortRoute("DeviceType")">Tipo</a></th>
+                <th>Marca / Modelo</th>
+                <th>Hostname</th>
+                <th><a asp-action="Index" asp-all-route-data="@GetSortRoute("Status")">Estado</a></th>
+                <th>Asignado a</th>
+                <th>Departamento</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model.Devices)
+            {
+                <tr>
+                    <td><a asp-action="Details" asp-route-id="@d.Id">@d.InventoryNumber</a></td>
+                    <td>@d.DeviceType</td>
+                    <td>@d.Brand @d.Model</td>
+                    <td>@d.ComputerName</td>
+                    <td><span class="badge @StatusBadgeClass(d.Status)">@d.Status</span></td>
+                    <td>@d.AssignedTo</td>
+                    <td>@d.Department</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@d.Id">Ver</a>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Devices.Any())
+            {
+                <tr><td colspan="8" class="text-center text-muted py-4">No se encontraron equipos.</td></tr>
+            }
+        </tbody>
+    </table>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav>
+            <ul class="pagination pagination-sm">
+                @for (var p = 1; p <= Model.TotalPages; p++)
+                {
+                    <li class="page-item @(p == Model.Page ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@p"
+                           asp-route-searchTerm="@Model.SearchTerm" asp-route-typeFilter="@Model.TypeFilter"
+                           asp-route-statusFilter="@Model.StatusFilter" asp-route-departmentFilter="@Model.DepartmentFilter"
+                           asp-route-sortBy="@Model.SortBy" asp-route-sortDescending="@Model.SortDescending">@p</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>
+
+@functions {
+    string StatusBadgeClass(DeviceStatus status) => status switch
+    {
+        DeviceStatus.Disponible => "text-bg-success",
+        DeviceStatus.Asignado => "text-bg-primary",
+        DeviceStatus.Mantenimiento => "text-bg-warning",
+        DeviceStatus.Baja => "text-bg-secondary",
+        DeviceStatus.Perdido => "text-bg-danger",
+        _ => "text-bg-light"
+    };
+
+    Dictionary<string, string?> GetSortRoute(string column)
+    {
+        return new Dictionary<string, string?>
+        {
+            ["searchTerm"] = Model.SearchTerm,
+            ["typeFilter"] = Model.TypeFilter?.ToString(),
+            ["statusFilter"] = Model.StatusFilter?.ToString(),
+            ["departmentFilter"] = Model.DepartmentFilter?.ToString(),
+            ["sortBy"] = column,
+            ["sortDescending"] = (Model.SortBy == column && !Model.SortDescending).ToString()
+        };
+    }
+}

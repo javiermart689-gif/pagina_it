@@ -1,0 +1,78 @@
+@model EmployeeDetailViewModel
+@{
+    var employee = Model.Employee;
+    ViewData["Title"] = $"{employee.FirstName} {employee.LastName}";
+}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h3 class="mb-0">@employee.FirstName @employee.LastName</h3>
+        <div class="text-muted">@employee.Position &middot; @employee.Department?.Name &middot; @employee.EmployeeNumber</div>
+    </div>
+    @if (User.IsInRole(Roles.Administrador))
+    {
+        <div>
+            <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@employee.Id">Editar</a>
+            @if (employee.Status == EmployeeStatus.Activo)
+            {
+                <form asp-action="Deactivate" asp-route-id="@employee.Id" method="post" class="d-inline"
+                      onsubmit="return confirm('¿Confirma desactivar este usuario?');">
+                    <button type="submit" class="btn btn-outline-danger">Desactivar</button>
+                </form>
+            }
+        </div>
+    }
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <div class="card-panel h-100">
+            <h6>Datos de contacto</h6>
+            <p class="mb-1"><strong>Correo:</strong> @employee.Email</p>
+            <p class="mb-1"><strong>Teléfono:</strong> @employee.Phone</p>
+            <p class="mb-1"><strong>Extensión:</strong> @employee.Extension</p>
+            <p class="mb-0"><strong>Ubicación:</strong> @employee.Location?.Name</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card-panel h-100">
+            <h6>Cuentas de correo</h6>
+            @if (!Model.EmailAccounts.Any())
+            {
+                <p class="text-muted small mb-0">Sin cuentas de correo registradas.</p>
+            }
+            else
+            {
+                <ul class="list-unstyled mb-0">
+                    @foreach (var ea in Model.EmailAccounts)
+                    {
+                        <li><a asp-controller="EmailAccounts" asp-action="Details" asp-route-id="@ea.Id">@ea.Email</a> <span class="badge text-bg-light">@ea.AccountType</span></li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="card-panel">
+    <h6>Equipos asignados</h6>
+    @if (!Model.AssignedDevices.Any())
+    {
+        <p class="text-muted small mb-0">Este usuario no tiene equipos asignados actualmente.</p>
+    }
+    else
+    {
+        <table class="table table-sm">
+            <thead><tr><th>Inventario</th><th>Equipo</th><th>Estado</th></tr></thead>
+            <tbody>
+                @foreach (var d in Model.AssignedDevices)
+                {
+                    <tr>
+                        <td><a asp-controller="Devices" asp-action="Details" asp-route-id="@d.Id">@d.InventoryNumber</a></td>
+                        <td>@d.Brand @d.Model</td>
+                        <td><span class="badge text-bg-primary">@d.Status</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

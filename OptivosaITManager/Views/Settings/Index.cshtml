@@ -1,0 +1,27 @@
+@{
+    ViewData["Title"] = "Configuración";
+}
+<h3 class="mb-3">Configuración</h3>
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card-panel h-100">
+            <h6>Departamentos</h6>
+            <p class="text-muted small">Administrar los departamentos de la empresa.</p>
+            <a class="btn btn-outline-primary" asp-action="Departments">Administrar</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card-panel h-100">
+            <h6>Ubicaciones</h6>
+            <p class="text-muted small">Administrar sedes, bodegas y sucursales.</p>
+            <a class="btn btn-outline-primary" asp-action="Locations">Administrar</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card-panel h-100">
+            <h6>Usuarios y roles</h6>
+            <p class="text-muted small">Gestionar cuentas de acceso al sistema y sus roles.</p>
+            <a class="btn btn-outline-primary" asp-action="Users">Administrar</a>
+        </div>
+    </div>
+</div>

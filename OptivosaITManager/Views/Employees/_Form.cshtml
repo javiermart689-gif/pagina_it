@@ -1,0 +1,55 @@
+@model EmployeeFormViewModel
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <label asp-for="EmployeeNumber" class="form-label"></label>
+        <input asp-for="EmployeeNumber" class="form-control" />
+        <span asp-validation-for="EmployeeNumber" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="FirstName" class="form-label"></label>
+        <input asp-for="FirstName" class="form-control" />
+        <span asp-validation-for="FirstName" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="LastName" class="form-label"></label>
+        <input asp-for="LastName" class="form-control" />
+        <span asp-validation-for="LastName" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="Position" class="form-label"></label>
+        <input asp-for="Position" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="DepartmentId" class="form-label"></label>
+        <select asp-for="DepartmentId" class="form-select" asp-items="@(new SelectList(Model.Departments, "Id", "Name"))">
+            <option value="">-- Sin asignar --</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="LocationId" class="form-label"></label>
+        <select asp-for="LocationId" class="form-select" asp-items="@(new SelectList(Model.Locations, "Id", "Name"))">
+            <option value="">-- Sin asignar --</option>
+        </select>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Phone" class="form-label"></label>
+        <input asp-for="Phone" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Extension" class="form-label"></label>
+        <input asp-for="Extension" class="form-control" />
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="Status" class="form-label"></label>
+        <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<EmployeeStatus>()"></select>
+    </div>
+</div>

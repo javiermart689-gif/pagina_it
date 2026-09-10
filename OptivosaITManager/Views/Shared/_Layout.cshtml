@@ -1,0 +1,109 @@
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Optivosa IT Manager</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/app.css" asp-append-version="true" />
+</head>
+<body>
+@if (SignInManager.IsSignedIn(User))
+{
+    <div class="app-shell">
+        <aside class="app-sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-mark">O</span>
+                <span class="brand-text">Optivosa <strong>IT Manager</strong></span>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="nav-link" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi-icon">▦</i> Dashboard
+                </a>
+                <a class="nav-link" asp-controller="Devices" asp-action="Index">
+                    <i class="bi-icon">💻</i> Equipos
+                </a>
+                <a class="nav-link" asp-controller="Employees" asp-action="Index">
+                    <i class="bi-icon">👤</i> Usuarios
+                </a>
+                @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+                {
+                    <a class="nav-link" asp-controller="Credentials" asp-action="Index">
+                        <i class="bi-icon">🔑</i> Credenciales
+                    </a>
+                }
+                <a class="nav-link" asp-controller="EmailAccounts" asp-action="Index">
+                    <i class="bi-icon">✉</i> Cuentas de correo
+                </a>
+                <a class="nav-link" asp-controller="Assignments" asp-action="Index">
+                    <i class="bi-icon">🔄</i> Asignaciones
+                </a>
+                <a class="nav-link" asp-controller="Maintenance" asp-action="Index">
+                    <i class="bi-icon">🛠</i> Mantenimiento
+                </a>
+                @if (User.IsInRole(Roles.Administrador))
+                {
+                    <a class="nav-link" asp-controller="Audit" asp-action="Index">
+                        <i class="bi-icon">📋</i> Auditoría
+                    </a>
+                    <a class="nav-link" asp-controller="Settings" asp-action="Index">
+                        <i class="bi-icon">⚙</i> Configuración
+                    </a>
+                }
+            </nav>
+        </aside>
+        <div class="app-main">
+            <header class="app-topbar">
+                <form class="global-search" asp-controller="Search" asp-action="Index" method="get">
+                    <input type="text" name="term" class="form-control" placeholder="Buscar usuarios, equipos, inventario, correo..." autocomplete="off" />
+                </form>
+                <div class="topbar-user dropdown">
+                    <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        @(UserManager.GetUserAsync(User).GetAwaiter().GetResult()?.DisplayName ?? User.Identity?.Name)
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text text-muted small">@string.Join(", ", (User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value)))</span></li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li>
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                <button type="submit" class="dropdown-item">Cerrar sesión</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </header>
+            <main class="app-content">
+                @if (TempData["SuccessMessage"] is string success)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        @success
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] is string error)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        @error
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+}
+else
+{
+    <main>
+        @RenderBody()
+    </main>
+}
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/app.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

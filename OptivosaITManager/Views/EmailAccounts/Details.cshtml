@@ -1,0 +1,39 @@
+@model EmailAccountDetailViewModel
+@{
+    var account = Model.EmailAccount;
+    ViewData["Title"] = account.Email;
+}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h3 class="mb-0">@account.Email</h3>
+        <div class="text-muted">@account.AccountType &middot; <span class="badge @(account.Status == EmailAccountStatus.Activa ? "text-bg-success" : "text-bg-secondary")">@account.Status</span></div>
+    </div>
+    @if (User.IsInRole(Roles.Administrador))
+    {
+        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@account.Id">Editar</a>
+    }
+</div>
+
+<div class="card-panel mb-3">
+    <p class="mb-1"><strong>Usuario:</strong> @account.Username</p>
+    <p class="mb-1"><strong>Empleado:</strong> @(account.Employee != null ? account.Employee.FirstName + " " + account.Employee.LastName : "Sin asignar")</p>
+    <p class="mb-0"><strong>Notas:</strong> @account.Notes</p>
+</div>
+
+<div class="card-panel">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0">Credenciales relacionadas</h6>
+        @if (User.IsInRole(Roles.Administrador))
+        {
+            <a class="btn btn-sm btn-outline-primary" asp-controller="Credentials" asp-action="Create" asp-route-emailAccountId="@account.Id">Agregar credencial</a>
+        }
+    </div>
+    @if (!Model.Credentials.Any())
+    {
+        <p class="text-muted small mb-0">No hay credenciales adicionales registradas.</p>
+    }
+    else
+    {
+        <partial name="../Credentials/_CredentialList" model="Model.Credentials" />
+    }
+</div>

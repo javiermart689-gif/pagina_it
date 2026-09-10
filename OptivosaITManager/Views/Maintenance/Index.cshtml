@@ -1,0 +1,44 @@
+@model IEnumerable<MaintenanceListItemViewModel>
+@{
+    ViewData["Title"] = "Mantenimiento";
+}
+<h3 class="mb-3">Mantenimiento</h3>
+
+<form method="get" class="table-toolbar card-panel">
+    <select name="statusFilter" class="form-select" style="max-width:220px" onchange="this.form.submit()">
+        <option value="">Todos los estados</option>
+        @foreach (var s in Enum.GetValues<MaintenanceStatus>())
+        {
+            <option value="@s" selected="@(s.Equals(ViewBag.StatusFilter))">@s</option>
+        }
+    </select>
+</form>
+
+<div class="card-panel">
+    <table class="table table-hover align-middle">
+        <thead><tr><th>Reportado</th><th>Inventario</th><th>Equipo</th><th>Problema</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+            @foreach (var m in Model)
+            {
+                <tr>
+                    <td>@m.ReportedAt.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                    <td>@m.InventoryNumber</td>
+                    <td>@m.DeviceLabel</td>
+                    <td>@m.Problem</td>
+                    <td><span class="badge text-bg-info">@m.Status</span></td>
+                    <td class="text-end">
+                        @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+                        {
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@m.Id">Actualizar</a>
+                        }
+                        <a class="btn btn-sm btn-outline-secondary" asp-controller="Devices" asp-action="Details" asp-route-id="@m.DeviceId">Ver equipo</a>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr><td colspan="6" class="text-center text-muted py-4">No hay registros de mantenimiento.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>

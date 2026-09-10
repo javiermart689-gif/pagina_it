@@ -1,0 +1,81 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using OptivosaITManager.Models;
+
+namespace OptivosaITManager.Data;
+
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+{
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options)
+    {
+    }
+
+    public DbSet<Department> Departments => Set<Department>();
+    public DbSet<Location> Locations => Set<Location>();
+    public DbSet<Employee> Employees => Set<Employee>();
+    public DbSet<Device> Devices => Set<Device>();
+    public DbSet<DeviceAssignment> DeviceAssignments => Set<DeviceAssignment>();
+    public DbSet<Credential> Credentials => Set<Credential>();
+    public DbSet<EmailAccount> EmailAccounts => Set<EmailAccount>();
+    public DbSet<Maintenance> MaintenanceRecords => Set<Maintenance>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        builder.Entity<Employee>(entity =>
+        {
+            entity.HasIndex(e => e.EmployeeNumber).IsUnique();
+            entity.HasIndex(e => e.Email);
+            entity.HasOne(e => e.Department).WithMany(d => d.Employees).HasForeignKey(e => e.DepartmentId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(e => e.Location).WithMany(l => l.Employees).HasForeignKey(e => e.LocationId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<Device>(entity =>
+        {
+            entity.HasIndex(d => d.InventoryNumber).IsUnique();
+            entity.HasIndex(d => d.SerialNumber);
+            entity.HasIndex(d => d.ComputerName);
+            entity.HasOne(d => d.Department).WithMany(dep => dep.Devices).HasForeignKey(d => d.DepartmentId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(d => d.Location).WithMany(l => l.Devices).HasForeignKey(d => d.LocationId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<DeviceAssignment>(entity =>
+        {
+            entity.HasOne(a => a.Device).WithMany(d => d.Assignments).HasForeignKey(a => a.DeviceId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(a => a.Employee).WithMany(e => e.DeviceAssignments).HasForeignKey(a => a.EmployeeId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasIndex(a => new { a.DeviceId, a.ReturnedAt });
+        });
+
+        builder.Entity<Credential>(entity =>
+        {
+            entity.HasOne(c => c.Device).WithMany(d => d.Credentials).HasForeignKey(c => c.DeviceId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(c => c.Employee).WithMany(e => e.Credentials).HasForeignKey(c => c.EmployeeId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(c => c.EmailAccount).WithMany(ea => ea.Credentials).HasForeignKey(c => c.EmailAccountId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<EmailAccount>(entity =>
+        {
+            entity.HasIndex(e => e.Email).IsUnique();
+            entity.HasOne(e => e.Employee).WithMany(emp => emp.EmailAccounts).HasForeignKey(e => e.EmployeeId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<Maintenance>(entity =>
+        {
+            entity.HasOne(m => m.Device).WithMany(d => d.MaintenanceRecords).HasForeignKey(m => m.DeviceId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(m => m.Technician).WithMany().HasForeignKey(m => m.TechnicianId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<AuditLog>(entity =>
+        {
+            entity.HasOne(a => a.User).WithMany().HasForeignKey(a => a.UserId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasIndex(a => a.Timestamp);
+            entity.HasIndex(a => new { a.EntityName, a.EntityId });
+        });
+
+        builder.Entity<Department>().HasIndex(d => d.Name).IsUnique();
+        builder.Entity<Location>().HasIndex(l => l.Name).IsUnique();
+    }
+}

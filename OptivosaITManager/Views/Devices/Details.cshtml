@@ -1,0 +1,137 @@
+@model DeviceDetailViewModel
+@{
+    var device = Model.Device;
+    ViewData["Title"] = $"{device.InventoryNumber}";
+    var current = Model.AssignmentHistory.FirstOrDefault(a => a.ReturnedAt == null);
+}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h3 class="mb-0">@device.Brand @device.Model</h3>
+        <div class="text-muted">Inventario: @device.InventoryNumber &middot; Serie: @device.SerialNumber &middot; Hostname: @device.ComputerName</div>
+    </div>
+    <div>
+        @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+        {
+            <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@device.Id">Editar</a>
+            @if (device.Status != DeviceStatus.Baja)
+            {
+                <form asp-action="Deactivate" asp-route-id="@device.Id" method="post" class="d-inline"
+                      onsubmit="return confirm('¿Confirma dar de baja este equipo?');">
+                    <button type="submit" class="btn btn-outline-danger">Dar de baja</button>
+                </form>
+            }
+        }
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <div class="card-panel h-100">
+            <h6>Estado y ubicación</h6>
+            <p class="mb-1"><strong>Estado:</strong> <span class="badge text-bg-primary">@device.Status</span></p>
+            <p class="mb-1"><strong>Tipo:</strong> @device.DeviceType</p>
+            <p class="mb-1"><strong>Sistema operativo:</strong> @device.OperatingSystem</p>
+            <p class="mb-1"><strong>Departamento:</strong> @device.Department?.Name</p>
+            <p class="mb-1"><strong>Ubicación:</strong> @device.Location?.Name</p>
+            <p class="mb-0"><strong>Garantía hasta:</strong> @(device.WarrantyExpirationDate?.ToString("dd/MM/yyyy") ?? "N/D")</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card-panel h-100">
+            <h6>Usuario actual</h6>
+            @if (current != null)
+            {
+                <p class="mb-1"><strong>@current.Employee.FirstName @current.Employee.LastName</strong></p>
+                <p class="mb-1 text-muted">@current.Employee.Department?.Name</p>
+                <p class="mb-2 text-muted small">Asignado desde @current.AssignedAt.ToLocalTime().ToString("dd/MM/yyyy")</p>
+                @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+                {
+                    <a class="btn btn-sm btn-primary" asp-controller="Assignments" asp-action="Reassign" asp-route-deviceId="@device.Id">Reasignar</a>
+                }
+            }
+            else
+            {
+                <p class="text-muted mb-2">Este equipo no tiene un usuario asignado actualmente.</p>
+                @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+                {
+                    <a class="btn btn-sm btn-primary" asp-controller="Assignments" asp-action="Assign" asp-route-deviceId="@device.Id">Asignar equipo</a>
+                }
+            }
+        </div>
+    </div>
+</div>
+
+<div class="card-panel mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0">Credenciales relacionadas</h6>
+        @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+        {
+            <a class="btn btn-sm btn-outline-primary" asp-controller="Credentials" asp-action="Create" asp-route-deviceId="@device.Id">Agregar credencial</a>
+        }
+    </div>
+    @if (!Model.Credentials.Any())
+    {
+        <p class="text-muted small mb-0">No hay credenciales registradas para este equipo.</p>
+    }
+    else
+    {
+        <partial name="../Credentials/_CredentialList" model="Model.Credentials" />
+    }
+</div>
+
+<div class="card-panel mb-3">
+    <h6>Historial de asignaciones</h6>
+    @if (!Model.AssignmentHistory.Any())
+    {
+        <p class="text-muted small mb-0">Sin historial de asignaciones.</p>
+    }
+    else
+    {
+        <table class="table table-sm">
+            <thead><tr><th>Desde</th><th>Hasta</th><th>Usuario</th><th>Departamento</th><th>Notas</th></tr></thead>
+            <tbody>
+                @foreach (var a in Model.AssignmentHistory)
+                {
+                    <tr>
+                        <td>@a.AssignedAt.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                        <td>@(a.ReturnedAt?.ToLocalTime().ToString("dd/MM/yyyy") ?? "Activo")</td>
+                        <td>@a.Employee.FirstName @a.Employee.LastName</td>
+                        <td>@a.Employee.Department?.Name</td>
+                        <td>@a.Notes</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+<div class="card-panel">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0">Historial de mantenimiento</h6>
+        @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+        {
+            <a class="btn btn-sm btn-outline-primary" asp-controller="Maintenance" asp-action="Create" asp-route-deviceId="@device.Id">Registrar mantenimiento</a>
+        }
+    </div>
+    @if (!Model.MaintenanceHistory.Any())
+    {
+        <p class="text-muted small mb-0">Sin registros de mantenimiento.</p>
+    }
+    else
+    {
+        <table class="table table-sm">
+            <thead><tr><th>Reportado</th><th>Problema</th><th>Estado</th><th>Completado</th></tr></thead>
+            <tbody>
+                @foreach (var m in Model.MaintenanceHistory)
+                {
+                    <tr>
+                        <td>@m.ReportedAt.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                        <td>@m.Problem</td>
+                        <td><span class="badge text-bg-info">@m.Status</span></td>
+                        <td>@(m.CompletedAt?.ToLocalTime().ToString("dd/MM/yyyy") ?? "-")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
