@@ -6,11 +6,8 @@
 <div class="login-wrapper">
     <div class="login-card">
         <div class="text-center mb-4">
-            <div class="optivosa-logo-tile mx-auto mb-3">
-                <div class="optivosa-wordmark">optivosa</div>
-                <div class="optivosa-tagline">IT Manager</div>
-            </div>
-            <small class="text-muted">Acceso interno de IT</small>
+            <img src="~/images/optivosa-logo.png" alt="Optivosa" class="login-logo mb-2" />
+            <div class="text-muted small fw-semibold">IT Manager &middot; Acceso interno de IT</div>
         </div>
         <form asp-controller="Account" asp-action="Login" method="post">
             <input type="hidden" asp-for="ReturnUrl" />
