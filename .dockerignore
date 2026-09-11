@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+**/.vs/
+**/.vscode/
+**/.idea/
+**/App_Data/
+**/demo.db*
+.git/
+.gitignore
+README.md
+*.md
