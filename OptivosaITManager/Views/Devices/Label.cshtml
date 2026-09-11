@@ -12,6 +12,11 @@
 
 <style>
     .device-label {
+        /* box-sizing: border-box para que el borde y el padding queden DENTRO de 3in x 2in:
+           así la etiqueta impresa mide exactamente eso (relevante si se imprime en papel de
+           etiquetas de ese tamaño fijo) en vez de desbordarse a ~3.3in x 2.3in y recortarse
+           contra el borde físico de la etiqueta. */
+        box-sizing: border-box;
         width: 3in;
         height: 2in;
         border: 1px solid #333;
@@ -28,11 +33,14 @@
     .device-label-logo {
         height: 0.35in;
         width: auto;
+        flex-shrink: 0;
     }
 
     .device-label-qr {
         width: 1in;
         height: 1in;
+        aspect-ratio: 1 / 1;
+        flex-shrink: 0;
     }
 
     .device-label-inventory {

@@ -241,8 +241,19 @@ a:hover {
     margin-bottom: 1rem;
 }
 
-/* El SVG que genera QRCoder trae su propio width/height en píxeles; sin esto se sale
-   del contenedor en vez de ajustarse al tamaño que le demos por CSS. */
+/* El contenedor del QR siempre debe ser cuadrado (aspect-ratio 1/1) y no encogerse dentro
+   de layouts flex: si su alto y ancho dejaran de coincidir, el SVG (ver regla siguiente)
+   se estiraría de forma no proporcional y deformaría los módulos del QR. */
+.qr-image {
+    aspect-ratio: 1 / 1;
+    flex-shrink: 0;
+    overflow: visible;
+}
+
+/* El QR se genera con SizingMode.ViewBoxAttribute (ver QrCodeService), es decir el SVG solo
+   trae "viewBox" y no width/height fijos en píxeles. Por eso width:100%/height:100% aquí
+   reescala TODO el contenido de forma proporcional al tamaño del contenedor en vez de
+   recortarlo (que es lo que pasaría con un SVG que sí trajera width/height fijos). */
 .qr-image svg {
     width: 100%;
     height: 100%;
