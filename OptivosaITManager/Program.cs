@@ -7,8 +7,17 @@ using OptivosaITManager.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("No se encontró la cadena de conexión 'DefaultConnection'.");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException(
+        "No se encontró la cadena de conexión 'ConnectionStrings:DefaultConnection' (o está vacía). " +
+        "Configúrela mediante la variable de entorno ConnectionStrings__DefaultConnection " +
+        "(doble guion bajo) o mediante User Secrets en desarrollo. " +
+        "Nota: appsettings.json define esta clave con un valor vacío por diseño (no debe contener " +
+        "secretos); si esta excepción aparece en un despliegue, la variable de entorno no está " +
+        "llegando al proceso — revise que esté definida en el servicio correcto y sin saltos de línea.");
+}
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
