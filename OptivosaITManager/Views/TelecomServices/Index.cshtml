@@ -7,7 +7,7 @@
         <h3 class="mb-0">Servicios de Telecomunicaciones</h3>
         <p class="text-muted small mb-0">Catálogo de referencia de Internet, telefonía y enlaces contratados con proveedores. No sustituye al sistema de tickets.</p>
     </div>
-    @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+    @if (User.IsInRole(Roles.SistemasTI))
     {
         <a class="btn btn-primary" asp-action="Create">Nuevo servicio</a>
     }

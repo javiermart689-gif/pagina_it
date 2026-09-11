@@ -110,6 +110,10 @@ public class DevicesController : Controller
 
         if (device is null) return NotFound();
 
+        // El rol Jefe no tiene "Credenciales" entre sus permisos de consulta: ni siquiera se
+        // consultan esas credenciales, en vez de solo ocultarlas en la vista.
+        var canViewCredentials = User.IsInRole(Roles.SistemasTI);
+
         var vm = new DeviceDetailViewModel
         {
             Device = device,
@@ -119,9 +123,10 @@ public class DevicesController : Controller
                 .Where(a => a.DeviceId == id)
                 .OrderByDescending(a => a.AssignedAt)
                 .ToListAsync(),
-            Credentials = await _context.Credentials
-                .Where(c => c.DeviceId == id && c.IsActive)
-                .ToListAsync(),
+            Credentials = canViewCredentials
+                ? await _context.Credentials.Where(c => c.DeviceId == id && c.IsActive).ToListAsync()
+                : new List<Credential>(),
+            CanViewCredentials = canViewCredentials,
             MaintenanceHistory = await _context.MaintenanceRecords
                 .Where(m => m.DeviceId == id)
                 .OrderByDescending(m => m.ReportedAt)
@@ -296,7 +301,7 @@ public class DevicesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = Roles.Administrador)]
+    [Authorize(Roles = Roles.SistemasTI)]
     public async Task<IActionResult> Deactivate(int id)
     {
         var device = await _context.Devices.FindAsync(id);

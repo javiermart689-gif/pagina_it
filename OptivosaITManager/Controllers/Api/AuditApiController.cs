@@ -9,7 +9,7 @@ namespace OptivosaITManager.Controllers.Api;
 
 [ApiController]
 [Route("api/audit")]
-[Authorize(Roles = Roles.Administrador)]
+[Authorize(Roles = Roles.SistemasTI)]
 public class AuditApiController : ControllerBase
 {
     private readonly ApplicationDbContext _context;

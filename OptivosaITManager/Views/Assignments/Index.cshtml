@@ -16,7 +16,7 @@
                     <td>@a.AssignedAt.ToLocalTime().ToString("dd/MM/yyyy")</td>
                     <td class="text-end">
                         <a class="btn btn-sm btn-outline-secondary" asp-controller="Devices" asp-action="Details" asp-route-id="@a.DeviceId">Ver equipo</a>
-                        @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+                        @if (User.IsInRole(Roles.SistemasTI))
                         {
                             <a class="btn btn-sm btn-primary" asp-action="Reassign" asp-route-deviceId="@a.DeviceId">Reasignar</a>
                         }

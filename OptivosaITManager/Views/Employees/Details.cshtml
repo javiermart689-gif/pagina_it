@@ -2,8 +2,8 @@
 @{
     var employee = Model.Employee;
     ViewData["Title"] = $"{employee.FirstName} {employee.LastName}";
-    var canViewPasswords = User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT);
-    var canEdit = User.IsInRole(Roles.Administrador);
+    var canViewPasswords = User.IsInRole(Roles.SistemasTI);
+    var canEdit = User.IsInRole(Roles.SistemasTI);
 }
 <form>@Html.AntiForgeryToken()</form>
 
@@ -67,7 +67,11 @@
                 </p>
                 <p class="mb-2 text-muted small">Tipo: @info.Device.DeviceType &middot; Hostname: @info.Device.ComputerName</p>
 
-                @if (!info.WindowsCredentials.Any())
+                @if (!Model.CanViewCredentials)
+                {
+                    <p class="text-muted small mb-0">Las credenciales de este equipo requieren permisos de Sistemas / TI.</p>
+                }
+                else if (!info.WindowsCredentials.Any())
                 {
                     <p class="text-muted small mb-0">
                         Sin credenciales de Windows registradas para este equipo.
@@ -103,99 +107,109 @@
     }
 </div>
 
-@* ===================== Dynamics 365 ===================== *@
-<div class="card-panel mb-3">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <h6 class="mb-0">Dynamics 365</h6>
-        @if (canEdit)
-        {
-            <a class="btn btn-sm btn-outline-primary" asp-controller="Credentials" asp-action="Create"
-               asp-route-employeeId="@employee.Id">Agregar cuenta</a>
-        }
+@if (!Model.CanViewCredentials)
+{
+    <div class="card-panel">
+        <h6 class="mb-1">Credenciales y cuentas</h6>
+        <p class="text-muted small mb-0">Dynamics 365, Microsoft 365 y otros accesos requieren permisos de Sistemas / TI.</p>
     </div>
-    @if (!Model.Dynamics365Credentials.Any())
-    {
-        <p class="text-muted small mb-0">Sin cuenta de Dynamics 365 registrada.</p>
-    }
-    else
-    {
-        foreach (var dc in Model.Dynamics365Credentials)
+}
+else
+{
+    @* ===================== Dynamics 365 ===================== *@
+    <div class="card-panel mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0">Dynamics 365</h6>
+            @if (canEdit)
+            {
+                <a class="btn btn-sm btn-outline-primary" asp-controller="Credentials" asp-action="Create"
+                   asp-route-employeeId="@employee.Id">Agregar cuenta</a>
+            }
+        </div>
+        @if (!Model.Dynamics365Credentials.Any())
         {
-            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-                <span><strong>Usuario:</strong> @dc.Username</span>
-                <span><strong>Contraseña:</strong> <span class="password-mask" data-password-slot="dyn-@dc.Id">••••••••</span></span>
-                @if (canViewPasswords)
-                {
-                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                            data-reveal-url="/Credentials/RevealPassword/@dc.Id" data-reveal-target="dyn-@dc.Id">Mostrar</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                            data-copy-url="/Credentials/CopyPassword/@dc.Id">Copiar</button>
-                }
-                @if (canEdit)
-                {
-                    <a class="btn btn-sm btn-outline-secondary" asp-controller="Credentials" asp-action="Edit" asp-route-id="@dc.Id">Editar</a>
-                }
-            </div>
+            <p class="text-muted small mb-0">Sin cuenta de Dynamics 365 registrada.</p>
         }
-    }
-</div>
-
-@* ===================== Microsoft 365 / Office ===================== *@
-<div class="card-panel mb-3">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <h6 class="mb-0">Microsoft 365</h6>
-        @if (canEdit)
+        else
         {
-            <a class="btn btn-sm btn-outline-primary" asp-controller="EmailAccounts" asp-action="Create"
-               asp-route-employeeId="@employee.Id">Agregar cuenta</a>
-        }
-    </div>
-    @if (!Model.EmailAccounts.Any())
-    {
-        <p class="text-muted small mb-0">Sin cuenta de Microsoft 365 registrada.</p>
-    }
-    else
-    {
-        foreach (var ea in Model.EmailAccounts)
-        {
-            <div class="mb-3 pb-3 border-bottom">
-                <p class="mb-1"><strong>Licencia:</strong> @(ea.License ?? "-")</p>
-                <p class="mb-1"><strong>Correo:</strong> <a asp-controller="EmailAccounts" asp-action="Details" asp-route-id="@ea.Id">@ea.Email</a></p>
-                <div class="d-flex flex-wrap align-items-center gap-2">
-                    <span><strong>Contraseña:</strong> <span class="password-mask" data-password-slot="m365-@ea.Id">••••••••</span></span>
+            foreach (var dc in Model.Dynamics365Credentials)
+            {
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                    <span><strong>Usuario:</strong> @dc.Username</span>
+                    <span><strong>Contraseña:</strong> <span class="password-mask" data-password-slot="dyn-@dc.Id">••••••••</span></span>
                     @if (canViewPasswords)
                     {
                         <button type="button" class="btn btn-sm btn-outline-secondary"
-                                data-reveal-url="/EmailAccounts/RevealPassword/@ea.Id" data-reveal-target="m365-@ea.Id">Mostrar</button>
+                                data-reveal-url="/Credentials/RevealPassword/@dc.Id" data-reveal-target="dyn-@dc.Id">Mostrar</button>
                         <button type="button" class="btn btn-sm btn-outline-secondary"
-                                data-copy-url="/EmailAccounts/CopyPassword/@ea.Id">Copiar</button>
+                                data-copy-url="/Credentials/CopyPassword/@dc.Id">Copiar</button>
                     }
                     @if (canEdit)
                     {
-                        <a class="btn btn-sm btn-outline-secondary" asp-controller="EmailAccounts" asp-action="Edit" asp-route-id="@ea.Id">Editar</a>
+                        <a class="btn btn-sm btn-outline-secondary" asp-controller="Credentials" asp-action="Edit" asp-route-id="@dc.Id">Editar</a>
                     }
                 </div>
-            </div>
-        }
-    }
-</div>
-
-@* ===================== Otros accesos (extensible: VPN, sistemas, apps, etc.) ===================== *@
-<div class="card-panel">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <h6 class="mb-0">Otros accesos</h6>
-        @if (canEdit)
-        {
-            <a class="btn btn-sm btn-outline-primary" asp-controller="Credentials" asp-action="Create"
-               asp-route-employeeId="@employee.Id">Agregar acceso</a>
+            }
         }
     </div>
-    @if (!Model.OtherCredentials.Any())
-    {
-        <p class="text-muted small mb-0">Sin otros accesos registrados (VPN, sistemas internos, aplicaciones, etc.).</p>
-    }
-    else
-    {
-        <partial name="../Credentials/_CredentialList" model="Model.OtherCredentials" />
-    }
-</div>
+
+    @* ===================== Microsoft 365 / Office ===================== *@
+    <div class="card-panel mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0">Microsoft 365</h6>
+            @if (canEdit)
+            {
+                <a class="btn btn-sm btn-outline-primary" asp-controller="EmailAccounts" asp-action="Create"
+                   asp-route-employeeId="@employee.Id">Agregar cuenta</a>
+            }
+        </div>
+        @if (!Model.EmailAccounts.Any())
+        {
+            <p class="text-muted small mb-0">Sin cuenta de Microsoft 365 registrada.</p>
+        }
+        else
+        {
+            foreach (var ea in Model.EmailAccounts)
+            {
+                <div class="mb-3 pb-3 border-bottom">
+                    <p class="mb-1"><strong>Licencia:</strong> @(ea.License ?? "-")</p>
+                    <p class="mb-1"><strong>Correo:</strong> <a asp-controller="EmailAccounts" asp-action="Details" asp-route-id="@ea.Id">@ea.Email</a></p>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <span><strong>Contraseña:</strong> <span class="password-mask" data-password-slot="m365-@ea.Id">••••••••</span></span>
+                        @if (canViewPasswords)
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                    data-reveal-url="/EmailAccounts/RevealPassword/@ea.Id" data-reveal-target="m365-@ea.Id">Mostrar</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                    data-copy-url="/EmailAccounts/CopyPassword/@ea.Id">Copiar</button>
+                        }
+                        @if (canEdit)
+                        {
+                            <a class="btn btn-sm btn-outline-secondary" asp-controller="EmailAccounts" asp-action="Edit" asp-route-id="@ea.Id">Editar</a>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    @* ===================== Otros accesos (extensible: VPN, sistemas, apps, etc.) ===================== *@
+    <div class="card-panel">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0">Otros accesos</h6>
+            @if (canEdit)
+            {
+                <a class="btn btn-sm btn-outline-primary" asp-controller="Credentials" asp-action="Create"
+                   asp-route-employeeId="@employee.Id">Agregar acceso</a>
+            }
+        </div>
+        @if (!Model.OtherCredentials.Any())
+        {
+            <p class="text-muted small mb-0">Sin otros accesos registrados (VPN, sistemas internos, aplicaciones, etc.).</p>
+        }
+        else
+        {
+            <partial name="../Credentials/_CredentialList" model="Model.OtherCredentials" />
+        }
+    </div>
+}

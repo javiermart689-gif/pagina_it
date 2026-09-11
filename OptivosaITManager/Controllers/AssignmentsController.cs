@@ -9,7 +9,11 @@ using OptivosaITManager.ViewModels;
 
 namespace OptivosaITManager.Controllers;
 
-[Authorize]
+// Asignaciones no está entre los permisos de consulta del rol Jefe (ver el menú de ejemplo en
+// la especificación de roles: Jefe solo ve Personas/Equipos/Servicios/Reportes). El historial
+// de asignaciones de un equipo puntual sigue siendo visible para Jefe porque se muestra
+// embebido en Devices/Details, que no pasa por este controlador.
+[Authorize(Roles = Roles.SistemasTI)]
 public class AssignmentsController : Controller
 {
     private readonly ApplicationDbContext _context;

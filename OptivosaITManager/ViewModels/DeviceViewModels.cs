@@ -95,6 +95,11 @@ public class DeviceDetailViewModel
     public Device Device { get; set; } = null!;
     public List<DeviceAssignment> AssignmentHistory { get; set; } = new();
     public List<Credential> Credentials { get; set; } = new();
+
+    /// <summary>False para el rol Jefe: Credentials viene vacía a propósito (ni siquiera se
+    /// consultó) y la vista debe mostrar un aviso, no "sin credenciales registradas".</summary>
+    public bool CanViewCredentials { get; set; }
+
     public List<Maintenance> MaintenanceHistory { get; set; } = new();
 
     /// <summary>Marcado SVG del QR, ya generado, solo si el equipo ya tiene QrToken.</summary>

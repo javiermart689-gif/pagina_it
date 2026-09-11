@@ -28,6 +28,7 @@ public static class AuditActions
     public const string ModificarServicioTelecom = "ModificarServicioTelecom";
     public const string ActivarServicioTelecom = "ActivarServicioTelecom";
     public const string DesactivarServicioTelecom = "DesactivarServicioTelecom";
+    public const string GenerarReporte = "GenerarReporte";
 }
 
 public interface IAuditService

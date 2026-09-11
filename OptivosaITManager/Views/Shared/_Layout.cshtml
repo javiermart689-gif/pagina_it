@@ -31,25 +31,31 @@
                 <a class="nav-link" asp-controller="Employees" asp-action="Index">
                     <i class="bi-icon">👤</i> Usuarios
                 </a>
-                @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+                @if (User.IsInRole(Roles.SistemasTI))
                 {
                     <a class="nav-link" asp-controller="Credentials" asp-action="Index">
                         <i class="bi-icon">🔑</i> Credenciales
                     </a>
                 }
-                <a class="nav-link" asp-controller="EmailAccounts" asp-action="Index">
-                    <i class="bi-icon">✉</i> Cuentas de correo
-                </a>
-                <a class="nav-link" asp-controller="Assignments" asp-action="Index">
-                    <i class="bi-icon">🔄</i> Asignaciones
-                </a>
-                <a class="nav-link" asp-controller="Maintenance" asp-action="Index">
-                    <i class="bi-icon">🛠</i> Mantenimiento
-                </a>
+                @if (User.IsInRole(Roles.SistemasTI))
+                {
+                    <a class="nav-link" asp-controller="EmailAccounts" asp-action="Index">
+                        <i class="bi-icon">✉</i> Cuentas de correo
+                    </a>
+                    <a class="nav-link" asp-controller="Assignments" asp-action="Index">
+                        <i class="bi-icon">🔄</i> Asignaciones
+                    </a>
+                    <a class="nav-link" asp-controller="Maintenance" asp-action="Index">
+                        <i class="bi-icon">🛠</i> Mantenimiento
+                    </a>
+                }
                 <a class="nav-link" asp-controller="TelecomServices" asp-action="Index">
                     <i class="bi-icon">📡</i> Servicios de Telecomunicaciones
                 </a>
-                @if (User.IsInRole(Roles.Administrador))
+                <a class="nav-link" asp-controller="Reports" asp-action="Index">
+                    <i class="bi-icon">📊</i> Reportes
+                </a>
+                @if (User.IsInRole(Roles.SistemasTI))
                 {
                     <a class="nav-link" asp-controller="Audit" asp-action="Index">
                         <i class="bi-icon">📋</i> Auditoría

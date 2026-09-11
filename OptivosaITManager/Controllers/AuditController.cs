@@ -6,7 +6,7 @@ using OptivosaITManager.Security;
 
 namespace OptivosaITManager.Controllers;
 
-[Authorize(Roles = Roles.Administrador)]
+[Authorize(Roles = Roles.SistemasTI)]
 public class AuditController : Controller
 {
     private readonly ApplicationDbContext _context;

@@ -65,32 +65,62 @@ public class EmployeesController : Controller
 
         if (employee is null) return NotFound();
 
-        var assignedDevices = await _context.Devices
-            .Include(d => d.Credentials.Where(c => c.CredentialType == CredentialType.Equipo && c.IsActive))
-            .Where(d => d.Assignments.Any(a => a.EmployeeId == id && a.ReturnedAt == null))
-            .ToListAsync();
+        // El rol Jefe no tiene "Credenciales"/"Cuentas de correo" entre sus permisos de consulta
+        // (ver Security/Roles.cs): para ese caso ni siquiera se consultan esos datos, en vez de
+        // solo ocultarlos en la vista.
+        var canViewCredentials = User.IsInRole(Roles.SistemasTI);
+
+        List<AssignedDeviceInfo> assignedDevicesInfo;
+        List<EmailAccount> emailAccounts = new();
+        List<Credential> dynamics365Credentials = new();
+        List<Credential> otherCredentials = new();
+
+        if (canViewCredentials)
+        {
+            var assignedDevices = await _context.Devices
+                .Include(d => d.Credentials.Where(c => c.CredentialType == CredentialType.Equipo && c.IsActive))
+                .Where(d => d.Assignments.Any(a => a.EmployeeId == id && a.ReturnedAt == null))
+                .ToListAsync();
+
+            assignedDevicesInfo = assignedDevices
+                .Select(d => new AssignedDeviceInfo { Device = d, WindowsCredentials = d.Credentials.ToList() })
+                .ToList();
+            emailAccounts = await _context.EmailAccounts.Where(ea => ea.EmployeeId == id).ToListAsync();
+            dynamics365Credentials = await _context.Credentials
+                .Where(c => c.EmployeeId == id && c.CredentialType == CredentialType.Dynamics365 && c.IsActive)
+                .ToListAsync();
+            otherCredentials = await _context.Credentials
+                .Where(c => c.EmployeeId == id && c.IsActive
+                    && c.CredentialType != CredentialType.Equipo
+                    && c.CredentialType != CredentialType.Dynamics365)
+                .ToListAsync();
+        }
+        else
+        {
+            // El equipo asignado (sin credenciales) sí es información de "Consultar equipos"
+            // visible para Jefe.
+            var assignedDevices = await _context.Devices
+                .Where(d => d.Assignments.Any(a => a.EmployeeId == id && a.ReturnedAt == null))
+                .ToListAsync();
+            assignedDevicesInfo = assignedDevices
+                .Select(d => new AssignedDeviceInfo { Device = d, WindowsCredentials = new List<Credential>() })
+                .ToList();
+        }
 
         var vm = new EmployeeDetailViewModel
         {
             Employee = employee,
-            AssignedDevices = assignedDevices
-                .Select(d => new AssignedDeviceInfo { Device = d, WindowsCredentials = d.Credentials.ToList() })
-                .ToList(),
-            EmailAccounts = await _context.EmailAccounts.Where(ea => ea.EmployeeId == id).ToListAsync(),
-            Dynamics365Credentials = await _context.Credentials
-                .Where(c => c.EmployeeId == id && c.CredentialType == CredentialType.Dynamics365 && c.IsActive)
-                .ToListAsync(),
-            OtherCredentials = await _context.Credentials
-                .Where(c => c.EmployeeId == id && c.IsActive
-                    && c.CredentialType != CredentialType.Equipo
-                    && c.CredentialType != CredentialType.Dynamics365)
-                .ToListAsync()
+            AssignedDevices = assignedDevicesInfo,
+            EmailAccounts = emailAccounts,
+            Dynamics365Credentials = dynamics365Credentials,
+            OtherCredentials = otherCredentials,
+            CanViewCredentials = canViewCredentials
         };
 
         return View(vm);
     }
 
-    [Authorize(Roles = Roles.Administrador)]
+    [Authorize(Roles = Roles.SistemasTI)]
     public async Task<IActionResult> Create()
     {
         return View(await BuildFormAsync(new EmployeeFormViewModel { Status = EmployeeStatus.Activo }));
@@ -98,7 +128,7 @@ public class EmployeesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = Roles.Administrador)]
+    [Authorize(Roles = Roles.SistemasTI)]
     public async Task<IActionResult> Create(EmployeeFormViewModel input)
     {
         if (await _context.Employees.AnyAsync(e => e.EmployeeNumber == input.EmployeeNumber))
@@ -134,7 +164,7 @@ public class EmployeesController : Controller
         return RedirectToAction(nameof(Details), new { id = employee.Id });
     }
 
-    [Authorize(Roles = Roles.Administrador)]
+    [Authorize(Roles = Roles.SistemasTI)]
     public async Task<IActionResult> Edit(int id)
     {
         var employee = await _context.Employees.FindAsync(id);
@@ -160,7 +190,7 @@ public class EmployeesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = Roles.Administrador)]
+    [Authorize(Roles = Roles.SistemasTI)]
     public async Task<IActionResult> Edit(int id, EmployeeFormViewModel input)
     {
         if (id != input.Id) return NotFound();
@@ -199,7 +229,7 @@ public class EmployeesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = Roles.Administrador)]
+    [Authorize(Roles = Roles.SistemasTI)]
     public async Task<IActionResult> Deactivate(int id)
     {
         var employee = await _context.Employees.FindAsync(id);

@@ -9,7 +9,10 @@ using OptivosaITManager.ViewModels;
 
 namespace OptivosaITManager.Controllers;
 
-[Authorize]
+// Mantenimiento no está entre los permisos de consulta del rol Jefe (ver el menú de ejemplo en
+// la especificación de roles). El historial de mantenimiento de un equipo puntual sigue siendo
+// visible para Jefe porque se muestra embebido en Devices/Details, que no pasa por aquí.
+[Authorize(Roles = Roles.SistemasTI)]
 public class MaintenanceController : Controller
 {
     private readonly ApplicationDbContext _context;

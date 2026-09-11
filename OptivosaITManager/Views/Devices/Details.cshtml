@@ -3,7 +3,7 @@
     var device = Model.Device;
     ViewData["Title"] = $"{device.InventoryNumber}";
     var current = Model.AssignmentHistory.FirstOrDefault(a => a.ReturnedAt == null);
-    var canEdit = User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT);
+    var canEdit = User.IsInRole(Roles.SistemasTI);
 }
 <div class="d-flex justify-content-between align-items-start mb-3">
     <div>
@@ -93,12 +93,16 @@
 <div class="card-panel mb-3">
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h6 class="mb-0">Credenciales relacionadas</h6>
-        @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+        @if (User.IsInRole(Roles.SistemasTI))
         {
             <a class="btn btn-sm btn-outline-primary" asp-controller="Credentials" asp-action="Create" asp-route-deviceId="@device.Id">Agregar credencial</a>
         }
     </div>
-    @if (!Model.Credentials.Any())
+    @if (!Model.CanViewCredentials)
+    {
+        <p class="text-muted small mb-0">Las credenciales de este equipo requieren permisos de Sistemas / TI.</p>
+    }
+    else if (!Model.Credentials.Any())
     {
         <p class="text-muted small mb-0">No hay credenciales registradas para este equipo.</p>
     }
@@ -137,7 +141,7 @@
 <div class="card-panel">
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h6 class="mb-0">Historial de mantenimiento</h6>
-        @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+        @if (User.IsInRole(Roles.SistemasTI))
         {
             <a class="btn btn-sm btn-outline-primary" asp-controller="Maintenance" asp-action="Create" asp-route-deviceId="@device.Id">Registrar mantenimiento</a>
         }

@@ -1,0 +1,123 @@
+@model ReportsIndexViewModel
+@{
+    ViewData["Title"] = "Reportes";
+}
+<div class="mb-3">
+    <h3 class="mb-0">Reportes</h3>
+    <p class="text-muted small mb-0">Genera y descarga reportes en Excel para el control administrativo de activos, personas y servicios.</p>
+</div>
+
+<div class="card-panel mb-3">
+    <h6 class="mb-3">Filtros</h6>
+    <form id="reportFiltersForm" method="get">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Sucursal</label>
+                <select name="LocationId" class="form-select">
+                    <option value="">Todas</option>
+                    @foreach (var l in Model.Locations)
+                    {
+                        <option value="@l.Id">@l.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Departamento</label>
+                <select name="DepartmentId" class="form-select">
+                    <option value="">Todos</option>
+                    @foreach (var d in Model.Departments)
+                    {
+                        <option value="@d.Id">@d.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Tipo de equipo</label>
+                <select name="DeviceType" class="form-select">
+                    <option value="">Todos</option>
+                    @foreach (var t in Enum.GetValues<DeviceType>())
+                    {
+                        <option value="@t">@t</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Estado del equipo</label>
+                <select name="DeviceStatus" class="form-select">
+                    <option value="">Todos</option>
+                    @foreach (var s in Enum.GetValues<DeviceStatus>())
+                    {
+                        <option value="@s">@s</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <p class="text-muted small mt-2 mb-0">Estos filtros aplican al reporte de Equipos y al Reporte general. El reporte de Servicios usa su propio filtro de tipo/estado más abajo.</p>
+    </form>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6 col-lg-3">
+        <div class="card-panel h-100 d-flex flex-column">
+            <h6>Equipos / Activos</h6>
+            <p class="text-muted small flex-grow-1">Inventario, marca, modelo, serie, usuario asignado, departamento, sucursal, estado y fechas.</p>
+            <button type="button" class="btn btn-primary" data-download-url="@Url.Action("DownloadDevices")">Descargar Excel</button>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card-panel h-100 d-flex flex-column">
+            <h6>Personas</h6>
+            <p class="text-muted small flex-grow-1">Empleados con su departamento, sucursal, teléfono y equipo asignado.</p>
+            <button type="button" class="btn btn-primary" data-download-url="@Url.Action("DownloadEmployees")">Descargar Excel</button>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card-panel h-100 d-flex flex-column">
+            <h6>Servicios de Telecomunicaciones</h6>
+            <p class="text-muted small flex-grow-1">Internet, telefonía y enlaces con proveedor, números de referencia y soporte.</p>
+            <div class="row g-2 mb-2">
+                <div class="col-6">
+                    <select name="ServiceType" form="reportFiltersForm" class="form-select form-select-sm">
+                        <option value="">Todos los tipos</option>
+                        @foreach (var t in Enum.GetValues<TelecomServiceType>())
+                        {
+                            <option value="@t">@t.DisplayName()</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-6">
+                    <select name="ServiceStatus" form="reportFiltersForm" class="form-select form-select-sm">
+                        <option value="true" selected>Activos</option>
+                        <option value="false">Inactivos</option>
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+            </div>
+            <button type="button" class="btn btn-primary mt-auto" data-download-url="@Url.Action("DownloadServices")">Descargar Excel</button>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="card-panel h-100 d-flex flex-column">
+            <h6>General (consolidado)</h6>
+            <p class="text-muted small flex-grow-1">Vista consolidada: empleado, departamento, sucursal y equipo asignado.</p>
+            <button type="button" class="btn btn-primary" data-download-url="@Url.Action("DownloadGeneral")">Descargar Excel</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('[data-download-url]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var baseUrl = btn.getAttribute('data-download-url');
+                var form = document.getElementById('reportFiltersForm');
+                var params = new URLSearchParams(new FormData(form));
+                // Quita los filtros vacíos para no ensuciar la URL / el query string del servidor.
+                Array.from(params.keys()).forEach(function (key) {
+                    if (!params.get(key)) params.delete(key);
+                });
+                window.location.href = baseUrl + '?' + params.toString();
+            });
+        });
+    </script>
+}

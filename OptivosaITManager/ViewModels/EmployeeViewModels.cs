@@ -61,6 +61,10 @@ public class EmployeeDetailViewModel
 
     /// <summary>Otros accesos extensibles: VPN, sistemas internos, aplicaciones, servicios, etc.</summary>
     public List<Credential> OtherCredentials { get; set; } = new();
+
+    /// <summary>False para el rol Jefe: las listas de credenciales/cuentas de arriba vienen vacías
+    /// a propósito (ni siquiera se consultaron) y la vista debe mostrar un aviso, no "sin registros".</summary>
+    public bool CanViewCredentials { get; set; }
 }
 
 public class AssignedDeviceInfo

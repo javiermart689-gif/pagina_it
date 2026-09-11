@@ -9,7 +9,10 @@ using OptivosaITManager.ViewModels;
 
 namespace OptivosaITManager.Controllers;
 
-[Authorize]
+// Las cuentas de correo/Microsoft 365 tienen la misma sensibilidad que Credentials (guardan
+// contraseñas cifradas); el rol Jefe no tiene "Cuentas de correo" entre sus permisos de
+// consulta, así que se restringe TODO el controlador (no solo crear/editar) a Sistemas / TI.
+[Authorize(Roles = Roles.SistemasTI)]
 public class EmailAccountsController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -54,7 +57,7 @@ public class EmailAccountsController : Controller
         return View(vm);
     }
 
-    [Authorize(Roles = Roles.Administrador)]
+    [Authorize(Roles = Roles.SistemasTI)]
     public async Task<IActionResult> Create(int? employeeId)
     {
         return View(await BuildFormAsync(new EmailAccountFormViewModel { Status = EmailAccountStatus.Activa, EmployeeId = employeeId }));
@@ -62,7 +65,7 @@ public class EmailAccountsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = Roles.Administrador)]
+    [Authorize(Roles = Roles.SistemasTI)]
     public async Task<IActionResult> Create(EmailAccountFormViewModel input)
     {
         if (string.IsNullOrWhiteSpace(input.Password))
@@ -101,7 +104,7 @@ public class EmailAccountsController : Controller
         return RedirectToAction(nameof(Details), new { id = account.Id });
     }
 
-    [Authorize(Roles = Roles.Administrador)]
+    [Authorize(Roles = Roles.SistemasTI)]
     public async Task<IActionResult> Edit(int id)
     {
         var account = await _context.EmailAccounts.FindAsync(id);
@@ -124,7 +127,7 @@ public class EmailAccountsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = Roles.Administrador)]
+    [Authorize(Roles = Roles.SistemasTI)]
     public async Task<IActionResult> Edit(int id, EmailAccountFormViewModel input)
     {
         if (id != input.Id) return NotFound();

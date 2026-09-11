@@ -2,7 +2,7 @@
 @{
     var account = Model.EmailAccount;
     ViewData["Title"] = account.Email;
-    var canViewPasswords = User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT);
+    var canViewPasswords = User.IsInRole(Roles.SistemasTI);
 }
 <form>@Html.AntiForgeryToken()</form>
 
@@ -11,7 +11,7 @@
         <h3 class="mb-0">@account.Email</h3>
         <div class="text-muted">@account.AccountType &middot; <span class="badge @(account.Status == EmailAccountStatus.Activa ? "bg-success text-white" : "bg-secondary text-white")">@account.Status</span></div>
     </div>
-    @if (User.IsInRole(Roles.Administrador))
+    @if (User.IsInRole(Roles.SistemasTI))
     {
         <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@account.Id">Editar</a>
     }
@@ -37,7 +37,7 @@
 <div class="card-panel">
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h6 class="mb-0">Credenciales relacionadas</h6>
-        @if (User.IsInRole(Roles.Administrador))
+        @if (User.IsInRole(Roles.SistemasTI))
         {
             <a class="btn btn-sm btn-outline-primary" asp-controller="Credentials" asp-action="Create" asp-route-emailAccountId="@account.Id">Agregar credencial</a>
         }

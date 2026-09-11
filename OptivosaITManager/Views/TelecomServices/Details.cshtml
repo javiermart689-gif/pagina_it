@@ -2,7 +2,7 @@
 @{
     var service = Model.Service;
     ViewData["Title"] = $"Servicio de {service.ServiceType.DisplayName()}";
-    var canEdit = User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT);
+    var canEdit = User.IsInRole(Roles.SistemasTI);
 }
 <div class="d-flex justify-content-between align-items-start mb-3">
     <div>

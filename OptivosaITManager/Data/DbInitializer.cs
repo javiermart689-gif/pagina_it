@@ -25,6 +25,8 @@ public static class DbInitializer
             }
         }
 
+        await MigrateLegacyRolesAsync(roleManager, userManager);
+
         var adminEmail = configuration["InitialAdmin:Email"] ?? "admin@optivosa.local";
         var adminPassword = configuration["InitialAdmin:Password"];
 
@@ -49,7 +51,7 @@ public static class DbInitializer
             var result = await userManager.CreateAsync(admin, adminPassword);
             if (result.Succeeded)
             {
-                await userManager.AddToRoleAsync(admin, Roles.Administrador);
+                await userManager.AddToRoleAsync(admin, Roles.SistemasTI);
             }
             else
             {
@@ -91,5 +93,34 @@ public static class DbInitializer
         }
 
         await context.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Migración no destructiva de los roles anteriores (Administrador, Tecnico IT, Consulta) al
+    /// modelo simplificado de dos roles (Sistemas / TI, Jefe). Reasigna a cada usuario que tenga
+    /// un rol heredado al rol nuevo equivalente (ver Roles.LegacyRoleMap) y luego elimina el rol
+    /// heredado (tanto la asignación de usuario como la fila en AspNetRoles, ya sin usuarios).
+    /// Es idempotente: en instalaciones nuevas, o ya migradas, no encuentra roles heredados y no
+    /// hace nada. Se ejecuta en cada arranque para cubrir también bases de datos ya desplegadas.
+    /// </summary>
+    private static async Task MigrateLegacyRolesAsync(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager)
+    {
+        foreach (var (legacyName, newName) in Roles.LegacyRoleMap)
+        {
+            var legacyRole = await roleManager.FindByNameAsync(legacyName);
+            if (legacyRole is null) continue;
+
+            var usersInLegacyRole = await userManager.GetUsersInRoleAsync(legacyName);
+            foreach (var user in usersInLegacyRole)
+            {
+                if (!await userManager.IsInRoleAsync(user, newName))
+                {
+                    await userManager.AddToRoleAsync(user, newName);
+                }
+                await userManager.RemoveFromRoleAsync(user, legacyName);
+            }
+
+            await roleManager.DeleteAsync(legacyRole);
+        }
     }
 }

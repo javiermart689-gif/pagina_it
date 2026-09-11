@@ -27,7 +27,7 @@
                     <td>@m.Problem</td>
                     <td><span class="badge bg-info text-dark">@m.Status</span></td>
                     <td class="text-end">
-                        @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+                        @if (User.IsInRole(Roles.SistemasTI))
                         {
                             <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@m.Id">Actualizar</a>
                         }

@@ -10,7 +10,7 @@ using OptivosaITManager.ViewModels;
 
 namespace OptivosaITManager.Controllers;
 
-[Authorize(Roles = Roles.Administrador)]
+[Authorize(Roles = Roles.SistemasTI)]
 public class SettingsController : Controller
 {
     private readonly ApplicationDbContext _context;

@@ -43,7 +43,7 @@ public class CredentialsController : Controller
         return View(credentials);
     }
 
-    [Authorize(Roles = Roles.Administrador)]
+    [Authorize(Roles = Roles.SistemasTI)]
     public IActionResult Create(int? deviceId, int? employeeId, int? emailAccountId)
     {
         return View(new CredentialFormViewModel
@@ -56,7 +56,7 @@ public class CredentialsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = Roles.Administrador)]
+    [Authorize(Roles = Roles.SistemasTI)]
     public async Task<IActionResult> Create(CredentialFormViewModel model)
     {
         if (string.IsNullOrWhiteSpace(model.Password))
@@ -90,7 +90,7 @@ public class CredentialsController : Controller
         return RedirectToBackOrIndex(credential);
     }
 
-    [Authorize(Roles = Roles.Administrador)]
+    [Authorize(Roles = Roles.SistemasTI)]
     public async Task<IActionResult> Edit(int id)
     {
         var credential = await _context.Credentials.FindAsync(id);
@@ -112,7 +112,7 @@ public class CredentialsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = Roles.Administrador)]
+    [Authorize(Roles = Roles.SistemasTI)]
     public async Task<IActionResult> Edit(int id, CredentialFormViewModel model)
     {
         if (id != model.Id) return NotFound();
@@ -144,7 +144,7 @@ public class CredentialsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = Roles.Administrador)]
+    [Authorize(Roles = Roles.SistemasTI)]
     public async Task<IActionResult> Deactivate(int id)
     {
         var credential = await _context.Credentials.FindAsync(id);
