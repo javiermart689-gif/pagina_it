@@ -56,7 +56,16 @@ using (var scope = app.Services.CreateScope())
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
     try
     {
-        if ((await context.Database.GetPendingMigrationsAsync()).Any())
+        // AUTO_MIGRATE=1 es un modo opt-in (por defecto desactivado) pensado para entornos
+        // de prueba efímeros (p. ej. un contenedor SQL Server temporal en Railway) donde no
+        // hay forma de ejecutar `dotnet ef database update` manualmente contra la base de
+        // datos. En el resto de entornos el comportamiento no cambia: nunca se migra sola.
+        if (builder.Configuration["AUTO_MIGRATE"] == "1")
+        {
+            await context.Database.MigrateAsync();
+            await DbInitializer.SeedAsync(scope.ServiceProvider, app.Configuration);
+        }
+        else if ((await context.Database.GetPendingMigrationsAsync()).Any())
         {
             logger.LogWarning(
                 "Hay migraciones pendientes. Ejecute 'dotnet ef database update' antes de usar la aplicación.");
