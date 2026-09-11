@@ -1,0 +1,102 @@
+@model TelecomServiceListViewModel
+@{
+    ViewData["Title"] = "Servicios de Telecomunicaciones";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="mb-0">Servicios de Telecomunicaciones</h3>
+        <p class="text-muted small mb-0">Catálogo de referencia de Internet, telefonía y enlaces contratados con proveedores. No sustituye al sistema de tickets.</p>
+    </div>
+    @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+    {
+        <a class="btn btn-primary" asp-action="Create">Nuevo servicio</a>
+    }
+</div>
+
+<form method="get" class="card-panel mb-3">
+    <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control form-control-lg mb-3"
+           placeholder="Buscar por servicio, teléfono, número de servicio, sucursal o proveedor..." autocomplete="off" />
+    <div class="table-toolbar">
+        <select name="typeFilter" class="form-select" style="max-width:190px">
+            <option value="">Todos los tipos</option>
+            @foreach (var t in Enum.GetValues<TelecomServiceType>())
+            {
+                <option value="@t" selected="@(Model.TypeFilter == t)">@t.DisplayName()</option>
+            }
+        </select>
+        <select name="locationFilter" class="form-select" style="max-width:200px">
+            <option value="">Todas las sucursales</option>
+            @foreach (var l in Model.Locations)
+            {
+                <option value="@l.Id" selected="@(Model.LocationFilter == l.Id)">@l.Name</option>
+            }
+        </select>
+        <select name="providerFilter" class="form-select" style="max-width:200px">
+            <option value="">Todos los proveedores</option>
+            @foreach (var p in Model.Providers)
+            {
+                <option value="@p" selected="@(Model.ProviderFilter == p)">@p</option>
+            }
+        </select>
+        <select name="statusFilter" class="form-select" style="max-width:170px">
+            <option value="true" selected="@(Model.StatusFilter == true)">Activos</option>
+            <option value="false" selected="@(Model.StatusFilter == false)">Inactivos</option>
+            <option value="" selected="@(Model.StatusFilter == null)">Todos los estados</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Buscar</button>
+        <a asp-action="Index" class="btn btn-link">Limpiar</a>
+    </div>
+</form>
+
+@if (!Model.Services.Any())
+{
+    <div class="card-panel text-center text-muted py-4">No se encontraron servicios con esos criterios.</div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var s in Model.Services)
+        {
+            <div class="col-md-6 col-lg-4">
+                <a asp-action="Details" asp-route-id="@s.Id" class="text-decoration-none text-reset">
+                    <div class="card-panel h-100">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div class="fw-semibold">@ServiceTypeIcon(s.ServiceType) @s.ServiceType.DisplayName().ToUpperInvariant()</div>
+                            @if (!s.IsActive)
+                            {
+                                <span class="badge bg-secondary text-white">Inactivo</span>
+                            }
+                        </div>
+                        @if (!string.IsNullOrEmpty(s.Name))
+                        {
+                            <div class="small text-muted mb-1">@s.Name</div>
+                        }
+                        <div class="small mb-1"><strong>Sucursal:</strong> @(s.Location ?? "Sin asignar")</div>
+                        <div class="small mb-1"><strong>Proveedor:</strong> @s.Provider</div>
+                        @if (!string.IsNullOrEmpty(s.ServiceNumber))
+                        {
+                            <div class="small mb-1"><strong>No. servicio:</strong> @s.ServiceNumber</div>
+                        }
+                        @if (!string.IsNullOrEmpty(s.PhoneNumber))
+                        {
+                            <div class="small mb-2"><strong>Teléfono:</strong> @s.PhoneNumber</div>
+                        }
+                        <span class="btn btn-sm btn-outline-primary">Ver información</span>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+}
+
+@functions {
+    string ServiceTypeIcon(TelecomServiceType type) => type switch
+    {
+        TelecomServiceType.Internet => "📡",
+        TelecomServiceType.Telefonia => "☎️",
+        TelecomServiceType.LineaTelefonica => "☎️",
+        TelecomServiceType.Enlace => "🔗",
+        TelecomServiceType.DatosMoviles => "📶",
+        _ => "🗂️"
+    };
+}

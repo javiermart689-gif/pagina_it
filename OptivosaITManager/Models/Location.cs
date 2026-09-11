@@ -16,4 +16,5 @@ public class Location
 
     public ICollection<Employee> Employees { get; set; } = new List<Employee>();
     public ICollection<Device> Devices { get; set; } = new List<Device>();
+    public ICollection<TelecomService> TelecomServices { get; set; } = new List<TelecomService>();
 }

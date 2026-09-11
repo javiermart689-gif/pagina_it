@@ -20,6 +20,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<EmailAccount> EmailAccounts => Set<EmailAccount>();
     public DbSet<Maintenance> MaintenanceRecords => Set<Maintenance>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<TelecomService> TelecomServices => Set<TelecomService>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -74,6 +75,18 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasOne(a => a.User).WithMany().HasForeignKey(a => a.UserId).OnDelete(DeleteBehavior.SetNull);
             entity.HasIndex(a => a.Timestamp);
             entity.HasIndex(a => new { a.EntityName, a.EntityId });
+        });
+
+        builder.Entity<TelecomService>(entity =>
+        {
+            entity.HasOne(s => s.Location).WithMany(l => l.TelecomServices).HasForeignKey(s => s.LocationId).OnDelete(DeleteBehavior.SetNull);
+            // Índices no únicos: el mismo número de servicio/teléfono/cuenta puede repetirse
+            // legítimamente en distintos contextos (rule 15), pero se consultan con frecuencia
+            // desde la búsqueda global del módulo y conviene que estén indexados.
+            entity.HasIndex(s => s.ServiceNumber);
+            entity.HasIndex(s => s.PhoneNumber);
+            entity.HasIndex(s => s.AccountNumber);
+            entity.HasIndex(s => s.Provider);
         });
 
         builder.Entity<Department>().HasIndex(d => d.Name).IsUnique();

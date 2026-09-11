@@ -29,7 +29,7 @@
                 <option value="">-- Seleccione --</option>
                 @foreach (var r in Model.AllRoles)
                 {
-                    <option value="@r">@r</option>
+                    <option value="@r">@Roles.DisplayName(r)</option>
                 }
             </select>
             <span asp-validation-for="Role" class="text-danger small"></span>

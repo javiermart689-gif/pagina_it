@@ -38,6 +38,24 @@ document.addEventListener('click', async function (e) {
         return;
     }
 
+    // Copia directa de texto ya visible en pantalla (p. ej. número de servicio, teléfono de
+    // soporte): a diferencia de data-copy-url, no hay nada sensible que desencriptar ni
+    // auditar, así que copia de inmediato en el navegador sin llamar al servidor.
+    const copyTextBtn = e.target.closest('[data-copy-text]');
+    if (copyTextBtn) {
+        e.preventDefault();
+        const text = copyTextBtn.getAttribute('data-copy-text');
+        try {
+            await navigator.clipboard.writeText(text);
+            const original = copyTextBtn.textContent;
+            copyTextBtn.textContent = 'Copiado';
+            setTimeout(() => { copyTextBtn.textContent = original; }, 2000);
+        } catch (err) {
+            // Silencioso: si el navegador bloquea el portapapeles no se registra nada indebido.
+        }
+        return;
+    }
+
     const copyBtn = e.target.closest('[data-copy-url]');
     if (copyBtn) {
         e.preventDefault();

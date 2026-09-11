@@ -6,7 +6,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Optivosa IT Manager</title>
+    <title>@ViewData["Title"] - Optivosa TI Manager</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/app.css" asp-append-version="true" />
 </head>
@@ -18,7 +18,7 @@
             <div class="sidebar-brand">
                 <div>
                     <img src="~/images/optivosa-logo-white-mark.png" alt="Optivosa" class="sidebar-logo" />
-                    <div class="optivosa-tagline">IT Manager</div>
+                    <div class="optivosa-tagline">TI Manager</div>
                 </div>
             </div>
             <nav class="sidebar-nav">
@@ -46,6 +46,9 @@
                 <a class="nav-link" asp-controller="Maintenance" asp-action="Index">
                     <i class="bi-icon">🛠</i> Mantenimiento
                 </a>
+                <a class="nav-link" asp-controller="TelecomServices" asp-action="Index">
+                    <i class="bi-icon">📡</i> Servicios de Telecomunicaciones
+                </a>
                 @if (User.IsInRole(Roles.Administrador))
                 {
                     <a class="nav-link" asp-controller="Audit" asp-action="Index">
@@ -67,7 +70,7 @@
                         @(UserManager.GetUserAsync(User).GetAwaiter().GetResult()?.DisplayName ?? User.Identity?.Name)
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><span class="dropdown-item-text text-muted small">@string.Join(", ", (User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value)))</span></li>
+                        <li><span class="dropdown-item-text text-muted small">@string.Join(", ", User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => Roles.DisplayName(c.Value)))</span></li>
                         <li><hr class="dropdown-divider" /></li>
                         <li>
                             <form asp-controller="Account" asp-action="Logout" method="post">

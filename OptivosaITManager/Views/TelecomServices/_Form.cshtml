@@ -1,0 +1,82 @@
+@model TelecomServiceFormViewModel
+
+@if (!string.IsNullOrEmpty(Model.DuplicateWarning))
+{
+    <div class="alert alert-warning">
+        <div class="mb-2">⚠️ @Model.DuplicateWarning</div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" asp-for="ConfirmDuplicate" id="confirmDuplicate" />
+            <label class="form-check-label" for="confirmDuplicate">Entiendo, es un registro distinto. Guardar de todas formas.</label>
+        </div>
+    </div>
+}
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <label asp-for="ServiceType" class="form-label"></label>
+        <select asp-for="ServiceType" class="form-select" asp-items="Html.GetEnumSelectList<TelecomServiceType>()"></select>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Provider" class="form-label"></label>
+        <input asp-for="Provider" class="form-control" />
+        <span asp-validation-for="Provider" class="text-danger small"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="ServiceNumber" class="form-label"></label>
+        <input asp-for="ServiceNumber" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="PhoneNumber" class="form-label"></label>
+        <input asp-for="PhoneNumber" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="AccountNumber" class="form-label"></label>
+        <input asp-for="AccountNumber" class="form-control" />
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="LocationId" class="form-label"></label>
+        <select asp-for="LocationId" class="form-select" asp-items="@(new SelectList(Model.Locations, "Id", "Name"))">
+            <option value="">-- Sin asignar --</option>
+        </select>
+    </div>
+    <div class="col-md-8">
+        <label asp-for="Address" class="form-label"></label>
+        <input asp-for="Address" class="form-control" />
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="ProviderContact" class="form-label"></label>
+        <input asp-for="ProviderContact" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="SupportPhone" class="form-label"></label>
+        <input asp-for="SupportPhone" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="SupportEmail" class="form-label"></label>
+        <input asp-for="SupportEmail" class="form-control" />
+        <span asp-validation-for="SupportEmail" class="text-danger small"></span>
+    </div>
+
+    <div class="col-12">
+        <label asp-for="Description" class="form-label"></label>
+        <input asp-for="Description" class="form-control" />
+    </div>
+    <div class="col-12">
+        <label asp-for="Notes" class="form-label"></label>
+        <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+    </div>
+
+    <div class="col-12">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" asp-for="IsActive" id="isActive" />
+            <label class="form-check-label" for="isActive">Servicio activo</label>
+        </div>
+    </div>
+</div>

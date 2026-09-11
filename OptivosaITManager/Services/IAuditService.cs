@@ -24,6 +24,10 @@ public static class AuditActions
     public const string GenerarQR = "GenerarQR";
     public const string EscanearQR = "EscanearQR";
     public const string RecibirEquipo = "RecibirEquipo";
+    public const string CrearServicioTelecom = "CrearServicioTelecom";
+    public const string ModificarServicioTelecom = "ModificarServicioTelecom";
+    public const string ActivarServicioTelecom = "ActivarServicioTelecom";
+    public const string DesactivarServicioTelecom = "DesactivarServicioTelecom";
 }
 
 public interface IAuditService

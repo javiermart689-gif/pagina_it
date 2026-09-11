@@ -5,6 +5,7 @@ public class SearchResultViewModel
     public List<EmployeeSearchHit> Employees { get; set; } = new();
     public List<DeviceSearchHit> Devices { get; set; } = new();
     public List<EmailSearchHit> Emails { get; set; } = new();
+    public List<TelecomServiceSearchHit> TelecomServices { get; set; } = new();
 }
 
 public class EmployeeSearchHit
@@ -31,4 +32,13 @@ public class EmailSearchHit
     public int Id { get; set; }
     public string Email { get; set; } = string.Empty;
     public string? EmployeeName { get; set; }
+}
+
+public class TelecomServiceSearchHit
+{
+    public int Id { get; set; }
+    public string ServiceType { get; set; } = string.Empty;
+    public string Provider { get; set; } = string.Empty;
+    public string? ServiceNumber { get; set; }
+    public string? Location { get; set; }
 }

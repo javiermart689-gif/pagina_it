@@ -42,7 +42,7 @@ public static class DbInitializer
             {
                 UserName = adminEmail,
                 Email = adminEmail,
-                DisplayName = "Administrador IT",
+                DisplayName = "Administrador TI",
                 EmailConfirmed = true
             };
 
@@ -61,12 +61,23 @@ public static class DbInitializer
         if (!await context.Departments.AnyAsync())
         {
             context.Departments.AddRange(
-                new Department { Name = "IT" },
+                new Department { Name = "TI" },
                 new Department { Name = "Contabilidad" },
                 new Department { Name = "Recursos Humanos" },
                 new Department { Name = "Ventas" },
                 new Department { Name = "Compras" },
                 new Department { Name = "Operaciones" });
+        }
+        else
+        {
+            // Corrección no destructiva para instalaciones que ya sembraron el departamento con
+            // el nombre antiguo "IT": se actualiza el mismo registro (mismo Id, mismas relaciones
+            // con empleados/equipos) a "TI", nunca se borra ni se crea uno nuevo.
+            var itDepartment = await context.Departments.FirstOrDefaultAsync(d => d.Name == "IT");
+            if (itDepartment is not null)
+            {
+                itDepartment.Name = "TI";
+            }
         }
 
         if (!await context.Locations.AnyAsync())

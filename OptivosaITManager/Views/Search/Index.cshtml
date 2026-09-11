@@ -37,7 +37,7 @@ else
 }
 
 <div class="row g-3">
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="card-panel h-100">
             <h6>Equipos</h6>
             @if (!Model.Devices.Any())
@@ -58,7 +58,7 @@ else
             }
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="card-panel h-100">
             <h6>Correo</h6>
             @if (!Model.Emails.Any())
@@ -73,6 +73,27 @@ else
                         <li class="mb-2">
                             <a asp-controller="EmailAccounts" asp-action="Details" asp-route-id="@e.Id">@e.Email</a><br />
                             <small class="text-muted">@e.EmployeeName</small>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card-panel h-100">
+            <h6>Servicios de Telecomunicaciones</h6>
+            @if (!Model.TelecomServices.Any())
+            {
+                <p class="text-muted small mb-0">Sin resultados.</p>
+            }
+            else
+            {
+                <ul class="list-unstyled mb-0">
+                    @foreach (var s in Model.TelecomServices)
+                    {
+                        <li class="mb-2">
+                            <a asp-controller="TelecomServices" asp-action="Details" asp-route-id="@s.Id">@s.ServiceType &middot; @s.Provider</a><br />
+                            <small class="text-muted">@(s.ServiceNumber ?? "-") &middot; @(s.Location ?? "Sin sucursal")</small>
                         </li>
                     }
                 </ul>

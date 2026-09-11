@@ -15,7 +15,7 @@
                 <tr>
                     <td>@u.Email</td>
                     <td>@u.DisplayName</td>
-                    <td>@string.Join(", ", u.Roles)</td>
+                    <td>@string.Join(", ", u.Roles.Select(Roles.DisplayName))</td>
                     <td>
                         @if (u.LockedOut)
                         {

@@ -1,0 +1,91 @@
+@model TelecomServiceDetailViewModel
+@{
+    var service = Model.Service;
+    ViewData["Title"] = $"Servicio de {service.ServiceType.DisplayName()}";
+    var canEdit = User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT);
+}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h3 class="mb-0">Servicio de @service.ServiceType.DisplayName().ToUpperInvariant()</h3>
+        @if (!string.IsNullOrEmpty(service.Name))
+        {
+            <div class="text-muted">@service.Name</div>
+        }
+        @if (!service.IsActive)
+        {
+            <span class="badge bg-secondary text-white mt-1">Inactivo</span>
+        }
+    </div>
+    @if (canEdit)
+    {
+        <div>
+            <a class="btn btn-outline-secondary me-2" asp-action="Edit" asp-route-id="@service.Id">Editar</a>
+            @if (service.IsActive)
+            {
+                <form asp-action="Deactivate" asp-route-id="@service.Id" method="post" class="d-inline"
+                      onsubmit="return confirm('¿Confirma desactivar este servicio? No se eliminará, solo dejará de aparecer entre los activos.');">
+                    <button type="submit" class="btn btn-outline-danger">Desactivar</button>
+                </form>
+            }
+            else
+            {
+                <form asp-action="Activate" asp-route-id="@service.Id" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-outline-success">Reactivar</button>
+                </form>
+            }
+        </div>
+    }
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card-panel h-100">
+            <h6 class="mb-3">Información general</h6>
+            <p class="mb-2"><strong>Tipo:</strong> @service.ServiceType.DisplayName()</p>
+            <p class="mb-2"><strong>Proveedor:</strong> @service.Provider</p>
+            <p class="mb-2"><strong>Sucursal:</strong> @(service.Location?.Name ?? "Sin asignar")</p>
+            <p class="mb-2 d-flex align-items-center gap-2">
+                <strong>Número de servicio:</strong>
+                <span data-copy-slot="service-number">@(service.ServiceNumber ?? "-")</span>
+                @if (!string.IsNullOrEmpty(service.ServiceNumber))
+                {
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-copy-text="@service.ServiceNumber">📋 Copiar</button>
+                }
+            </p>
+            <p class="mb-2"><strong>Número de cuenta:</strong> @(service.AccountNumber ?? "-")</p>
+            <p class="mb-2 d-flex align-items-center gap-2">
+                <strong>Número telefónico:</strong>
+                <span>@(service.PhoneNumber ?? "-")</span>
+                @if (!string.IsNullOrEmpty(service.PhoneNumber))
+                {
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-copy-text="@service.PhoneNumber">📋 Copiar</button>
+                }
+            </p>
+            <p class="mb-0"><strong>Dirección:</strong> @(service.Address ?? "-")</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card-panel h-100">
+            <h6 class="mb-3">Información del proveedor</h6>
+            <p class="mb-2"><strong>Contacto:</strong> @(service.ProviderContact ?? "-")</p>
+            <p class="mb-2 d-flex align-items-center gap-2">
+                <strong>Teléfono de soporte:</strong>
+                <span>@(service.SupportPhone ?? "-")</span>
+                @if (!string.IsNullOrEmpty(service.SupportPhone))
+                {
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-copy-text="@service.SupportPhone">📋 Copiar</button>
+                }
+            </p>
+            <p class="mb-2"><strong>Correo:</strong> @(service.SupportEmail ?? "-")</p>
+            @if (!string.IsNullOrEmpty(service.Description))
+            {
+                <p class="mb-2"><strong>Descripción:</strong> @service.Description</p>
+            }
+            <p class="mb-0"><strong>Observaciones:</strong> @(service.Notes ?? "-")</p>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
+</div>

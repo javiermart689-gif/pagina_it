@@ -88,6 +88,35 @@ public class SearchService : ISearchService
             })
             .ToListAsync();
 
+        // El enum ServiceType no se puede comparar/proyectar con ToString() dentro de la
+        // consulta (EF Core no puede traducirlo a SQL); se resuelve en memoria a qué tipo
+        // corresponde el término buscado (si corresponde a alguno) antes de construir el Where.
+        var telecomTypeMatch = Enum.GetValues<Models.TelecomServiceType>()
+            .Cast<Models.TelecomServiceType?>()
+            .FirstOrDefault(t => t!.Value.ToString().Contains(term.Trim(), StringComparison.OrdinalIgnoreCase));
+
+        result.TelecomServices = (await _context.TelecomServices
+            .Include(s => s.Location)
+            .Where(s => s.IsActive &&
+                     (EF.Functions.Like(s.Provider, pattern)
+                     || (s.Name != null && EF.Functions.Like(s.Name, pattern))
+                     || (s.ServiceNumber != null && EF.Functions.Like(s.ServiceNumber, pattern))
+                     || (s.PhoneNumber != null && EF.Functions.Like(s.PhoneNumber, pattern))
+                     || (s.AccountNumber != null && EF.Functions.Like(s.AccountNumber, pattern))
+                     || (s.Location != null && EF.Functions.Like(s.Location.Name, pattern))
+                     || (telecomTypeMatch.HasValue && s.ServiceType == telecomTypeMatch.Value)))
+            .Take(MaxResultsPerCategory)
+            .ToListAsync())
+            .Select(s => new TelecomServiceSearchHit
+            {
+                Id = s.Id,
+                ServiceType = s.ServiceType.ToString(),
+                Provider = s.Provider,
+                ServiceNumber = s.ServiceNumber,
+                Location = s.Location?.Name
+            })
+            .ToList();
+
         return result;
     }
 }
