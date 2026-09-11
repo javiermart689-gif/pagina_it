@@ -3,6 +3,7 @@
     var device = Model.Device;
     ViewData["Title"] = $"{device.InventoryNumber}";
     var current = Model.AssignmentHistory.FirstOrDefault(a => a.ReturnedAt == null);
+    var canEdit = User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT);
 }
 <div class="d-flex justify-content-between align-items-start mb-3">
     <div>
@@ -10,8 +11,9 @@
         <div class="text-muted">Inventario: @device.InventoryNumber &middot; Serie: @device.SerialNumber &middot; Hostname: @device.ComputerName</div>
     </div>
     <div>
-        @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+        @if (canEdit)
         {
+            <a class="btn btn-outline-secondary" asp-action="Receive" asp-route-id="@device.Id">Recibir equipo</a>
             <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@device.Id">Editar</a>
             @if (device.Status != DeviceStatus.Baja)
             {
@@ -41,10 +43,13 @@
             <h6>Usuario actual</h6>
             @if (current != null)
             {
-                <p class="mb-1"><strong>@current.Employee.FirstName @current.Employee.LastName</strong></p>
-                <p class="mb-1 text-muted">@current.Employee.Department?.Name</p>
+                <p class="mb-1">
+                    <strong><a asp-controller="Employees" asp-action="Details" asp-route-id="@current.Employee.Id">@current.Employee.FirstName @current.Employee.LastName</a></strong>
+                </p>
+                <p class="mb-1 text-muted">@current.Employee.Department?.Name &middot; @(current.Employee.Location?.Name ?? "Sin sucursal")</p>
+                <p class="mb-1 text-muted">Tel. @(current.Employee.Phone ?? "-")</p>
                 <p class="mb-2 text-muted small">Asignado desde @current.AssignedAt.ToLocalTime().ToString("dd/MM/yyyy")</p>
-                @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+                @if (canEdit)
                 {
                     <a class="btn btn-sm btn-primary" asp-controller="Assignments" asp-action="Reassign" asp-route-deviceId="@device.Id">Reasignar</a>
                 }
@@ -52,13 +57,37 @@
             else
             {
                 <p class="text-muted mb-2">Este equipo no tiene un usuario asignado actualmente.</p>
-                @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
+                @if (canEdit)
                 {
                     <a class="btn btn-sm btn-primary" asp-controller="Assignments" asp-action="Assign" asp-route-deviceId="@device.Id">Asignar equipo</a>
                 }
             }
         </div>
     </div>
+</div>
+
+<div class="card-panel mb-3">
+    <h6 class="mb-2">Código QR del equipo</h6>
+    @if (device.QrToken is null)
+    {
+        <p class="text-muted small mb-2">Este equipo todavía no tiene un código QR. El QR identifica al equipo de forma permanente: seguirá funcionando aunque se reasigne a otra persona.</p>
+        @if (canEdit)
+        {
+            <form asp-action="GenerateQr" asp-route-id="@device.Id" method="post">
+                <button type="submit" class="btn btn-primary">Generar QR</button>
+            </form>
+        }
+    }
+    else
+    {
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div class="qr-image" style="width:140px;height:140px">@Html.Raw(Model.QrSvg)</div>
+            <div>
+                <p class="mb-2 text-muted small">Al escanearlo, un usuario autenticado con permisos de IT ve automáticamente la ficha actual de este equipo (persona asignada, departamento, sucursal y cuentas), sin importar cuántas veces cambie de dueño.</p>
+                <a class="btn btn-outline-primary" asp-action="Label" asp-route-id="@device.Id" target="_blank">Descargar / imprimir etiqueta</a>
+            </div>
+        </div>
+    }
 </div>
 
 <div class="card-panel mb-3">

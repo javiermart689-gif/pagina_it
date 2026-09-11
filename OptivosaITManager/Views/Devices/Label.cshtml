@@ -1,0 +1,49 @@
+@model DeviceLabelViewModel
+@{
+    ViewData["Title"] = $"Etiqueta {Model.Device.InventoryNumber}";
+    Layout = "_PrintLayout";
+}
+<div class="device-label">
+    <img src="~/images/optivosa-logo.png" alt="Optivosa" class="device-label-logo" />
+    <div class="device-label-qr qr-image">@Html.Raw(Model.QrSvg)</div>
+    <div class="device-label-inventory">@Model.Device.InventoryNumber</div>
+    <div class="device-label-tag">ACTIVO DE TI</div>
+</div>
+
+<style>
+    .device-label {
+        width: 3in;
+        height: 2in;
+        border: 1px solid #333;
+        border-radius: 6px;
+        padding: 0.15in;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        text-align: center;
+        font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    .device-label-logo {
+        height: 0.35in;
+        width: auto;
+    }
+
+    .device-label-qr {
+        width: 1in;
+        height: 1in;
+    }
+
+    .device-label-inventory {
+        font-weight: 700;
+        font-size: 1rem;
+        letter-spacing: .5px;
+    }
+
+    .device-label-tag {
+        font-size: .65rem;
+        letter-spacing: 1.5px;
+        color: #616a75;
+    }
+</style>

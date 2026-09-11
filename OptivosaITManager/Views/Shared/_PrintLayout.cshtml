@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Optivosa IT Manager</title>
+    <link rel="stylesheet" href="~/css/app.css" asp-append-version="true" />
+    <style>
+        body { background: #fff; padding: 2rem; }
+        .no-print { margin-bottom: 1.5rem; }
+        @@media print {
+            .no-print { display: none !important; }
+            body { padding: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print">
+        <button type="button" class="btn btn-primary" onclick="window.print()">Imprimir</button>
+        <a href="javascript:history.back()" class="btn btn-outline-secondary">Volver</a>
+    </div>
+    @RenderBody()
+</body>
+</html>

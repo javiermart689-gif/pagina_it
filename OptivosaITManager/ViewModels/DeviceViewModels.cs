@@ -96,4 +96,37 @@ public class DeviceDetailViewModel
     public List<DeviceAssignment> AssignmentHistory { get; set; } = new();
     public List<Credential> Credentials { get; set; } = new();
     public List<Maintenance> MaintenanceHistory { get; set; } = new();
+
+    /// <summary>Marcado SVG del QR, ya generado, solo si el equipo ya tiene QrToken.</summary>
+    public string? QrSvg { get; set; }
+}
+
+public class DeviceLabelViewModel
+{
+    public Device Device { get; set; } = null!;
+    public string QrSvg { get; set; } = string.Empty;
+}
+
+public class DeviceReceiveViewModel
+{
+    public string? SearchTerm { get; set; }
+
+    public Device? Device { get; set; }
+    public DeviceAssignment? CurrentAssignment { get; set; }
+
+    [Display(Name = "Nuevo estado")]
+    public DeviceStatus NewStatus { get; set; }
+
+    [StringLength(500)]
+    public string? Notes { get; set; }
+
+    /// <summary>Estados permitidos específicamente en el flujo de recepción física de equipos.</summary>
+    public static readonly DeviceStatus[] AllowedStatuses =
+    {
+        DeviceStatus.Asignado,
+        DeviceStatus.EnRevision,
+        DeviceStatus.EnReparacion,
+        DeviceStatus.EnAlmacen,
+        DeviceStatus.Baja
+    };
 }

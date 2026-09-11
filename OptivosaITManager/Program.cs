@@ -51,6 +51,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
 builder.Services.AddScoped<IExcelImportService, ExcelImportService>();
+builder.Services.AddSingleton<IQrCodeService, QrCodeService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddAntiforgery(options => options.HeaderName = "RequestVerificationToken");

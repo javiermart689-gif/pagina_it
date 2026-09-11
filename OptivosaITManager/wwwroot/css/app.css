@@ -241,6 +241,14 @@ a:hover {
     margin-bottom: 1rem;
 }
 
+/* El SVG que genera QRCoder trae su propio width/height en píxeles; sin esto se sale
+   del contenedor en vez de ajustarse al tamaño que le demos por CSS. */
+.qr-image svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
 @media (max-width: 900px) {
     .app-sidebar { display: none; }
 }

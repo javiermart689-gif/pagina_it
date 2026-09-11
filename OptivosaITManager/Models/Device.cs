@@ -40,6 +40,13 @@ public class Device
     [StringLength(1000)]
     public string? Notes { get; set; }
 
+    // Identificador aleatorio y no adivinable usado únicamente para localizar el equipo al
+    // escanear su código QR (ruta /q/{QrToken}). Nunca contiene información sensible; el
+    // acceso a la ficha real sigue requiriendo autenticación. Estable ante reasignaciones:
+    // identifica al EQUIPO, no a la persona ni a una asignación puntual.
+    [StringLength(64)]
+    public string? QrToken { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
 

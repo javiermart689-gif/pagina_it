@@ -38,6 +38,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasIndex(d => d.InventoryNumber).IsUnique();
             entity.HasIndex(d => d.SerialNumber);
             entity.HasIndex(d => d.ComputerName);
+            entity.HasIndex(d => d.QrToken).IsUnique();
             entity.HasOne(d => d.Department).WithMany(dep => dep.Devices).HasForeignKey(d => d.DepartmentId).OnDelete(DeleteBehavior.SetNull);
             entity.HasOne(d => d.Location).WithMany(l => l.Devices).HasForeignKey(d => d.LocationId).OnDelete(DeleteBehavior.SetNull);
         });

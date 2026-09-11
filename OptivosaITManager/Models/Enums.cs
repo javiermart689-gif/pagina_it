@@ -17,7 +17,12 @@ public enum DeviceStatus
     Asignado,
     Mantenimiento,
     Baja,
-    Perdido
+    Perdido,
+    // Agregados para el flujo "Recibir equipo". Añadidos al final para no alterar los
+    // valores numéricos ya guardados en la BD para los estados existentes.
+    EnRevision,
+    EnReparacion,
+    EnAlmacen
 }
 
 public enum EmployeeStatus

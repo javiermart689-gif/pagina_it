@@ -21,6 +21,9 @@ public static class AuditActions
     public const string CrearCorreo = "CrearCorreo";
     public const string ModificarCorreo = "ModificarCorreo";
     public const string ImportarExcel = "ImportarExcel";
+    public const string GenerarQR = "GenerarQR";
+    public const string EscanearQR = "EscanearQR";
+    public const string RecibirEquipo = "RecibirEquipo";
 }
 
 public interface IAuditService

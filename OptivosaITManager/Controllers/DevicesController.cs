@@ -15,13 +15,19 @@ public class DevicesController : Controller
     private readonly ApplicationDbContext _context;
     private readonly IAuditService _auditService;
     private readonly IExcelImportService _importService;
+    private readonly IQrCodeService _qrCodeService;
 
-    public DevicesController(ApplicationDbContext context, IAuditService auditService, IExcelImportService importService)
+    public DevicesController(ApplicationDbContext context, IAuditService auditService,
+        IExcelImportService importService, IQrCodeService qrCodeService)
     {
         _context = context;
         _auditService = auditService;
         _importService = importService;
+        _qrCodeService = qrCodeService;
     }
+
+    /// <summary>URL pública y corta que el QR codifica. Nunca incluye datos sensibles, solo el token.</summary>
+    private string BuildScanUrl(string token) => $"{Request.Scheme}://{Request.Host}/q/{token}";
 
     public async Task<IActionResult> Index(string? searchTerm, DeviceType? typeFilter, DeviceStatus? statusFilter,
         int? departmentFilter, string sortBy = "InventoryNumber", bool sortDescending = false, int page = 1)
@@ -109,6 +115,7 @@ public class DevicesController : Controller
             Device = device,
             AssignmentHistory = await _context.DeviceAssignments
                 .Include(a => a.Employee).ThenInclude(e => e.Department)
+                .Include(a => a.Employee).ThenInclude(e => e.Location)
                 .Where(a => a.DeviceId == id)
                 .OrderByDescending(a => a.AssignedAt)
                 .ToListAsync(),
@@ -118,7 +125,54 @@ public class DevicesController : Controller
             MaintenanceHistory = await _context.MaintenanceRecords
                 .Where(m => m.DeviceId == id)
                 .OrderByDescending(m => m.ReportedAt)
-                .ToListAsync()
+                .ToListAsync(),
+            QrSvg = device.QrToken is not null ? _qrCodeService.GenerateSvg(BuildScanUrl(device.QrToken)) : null
+        };
+
+        return View(vm);
+    }
+
+    /// <summary>
+    /// Genera (una sola vez) el token de QR del equipo. Es idempotente: si ya existe, no lo
+    /// reemplaza, para que la etiqueta impresa siga funcionando aunque el equipo cambie de
+    /// usuario — el QR identifica al EQUIPO, nunca a una asignación puntual.
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = Roles.PuedeEditar)]
+    public async Task<IActionResult> GenerateQr(int id)
+    {
+        var device = await _context.Devices.FindAsync(id);
+        if (device is null) return NotFound();
+
+        if (device.QrToken is null)
+        {
+            device.QrToken = Guid.NewGuid().ToString("N");
+            device.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            await _auditService.LogAsync(AuditActions.GenerarQR, nameof(Device), device.Id.ToString(),
+                $"QR generado para el equipo {device.InventoryNumber}.");
+        }
+
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+    [Authorize]
+    public async Task<IActionResult> Label(int id)
+    {
+        var device = await _context.Devices.FindAsync(id);
+        if (device is null) return NotFound();
+
+        if (device.QrToken is null)
+        {
+            TempData["ErrorMessage"] = "Este equipo aún no tiene un código QR generado.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        var vm = new DeviceLabelViewModel
+        {
+            Device = device,
+            QrSvg = _qrCodeService.GenerateSvg(BuildScanUrl(device.QrToken))
         };
 
         return View(vm);
@@ -255,6 +309,82 @@ public class DevicesController : Controller
 
         TempData["SuccessMessage"] = "Equipo dado de baja.";
         return RedirectToAction(nameof(Details), new { id });
+    }
+
+    /// <summary>
+    /// Recepción física de un equipo: buscarlo (por inventario, serie o escaneando su QR)
+    /// y actualizar su estado, independientemente de si sigue asignado a alguien o no.
+    /// No modifica la asignación actual; para reasignar el equipo se usa el módulo de
+    /// Asignaciones.
+    /// </summary>
+    [Authorize(Roles = Roles.PuedeEditar)]
+    public async Task<IActionResult> Receive(int? id, string? searchTerm)
+    {
+        var vm = new DeviceReceiveViewModel { SearchTerm = searchTerm };
+
+        Device? device = null;
+        if (id.HasValue)
+        {
+            device = await _context.Devices
+                .Include(d => d.Department)
+                .Include(d => d.Location)
+                .FirstOrDefaultAsync(d => d.Id == id);
+        }
+        else if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var term = searchTerm.Trim();
+            device = await _context.Devices
+                .Include(d => d.Department)
+                .Include(d => d.Location)
+                .FirstOrDefaultAsync(d =>
+                    d.InventoryNumber == term ||
+                    (d.SerialNumber != null && d.SerialNumber == term) ||
+                    EF.Functions.Like(d.InventoryNumber, $"%{term}%"));
+
+            if (device is null)
+            {
+                TempData["ErrorMessage"] = "No se encontró ningún equipo con ese número de inventario o serie.";
+            }
+        }
+
+        if (device is not null)
+        {
+            vm.Device = device;
+            vm.NewStatus = device.Status;
+            vm.CurrentAssignment = await _context.DeviceAssignments
+                .Include(a => a.Employee).ThenInclude(e => e.Department)
+                .Include(a => a.Employee).ThenInclude(e => e.Location)
+                .Where(a => a.DeviceId == device.Id && a.ReturnedAt == null)
+                .FirstOrDefaultAsync();
+        }
+
+        return View(vm);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = Roles.PuedeEditar)]
+    public async Task<IActionResult> ReceiveConfirm(int deviceId, DeviceStatus newStatus, string? notes)
+    {
+        if (!DeviceReceiveViewModel.AllowedStatuses.Contains(newStatus))
+        {
+            return BadRequest();
+        }
+
+        var device = await _context.Devices.FindAsync(deviceId);
+        if (device is null) return NotFound();
+
+        var previousStatus = device.Status;
+        device.Status = newStatus;
+        device.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+
+        await _auditService.LogAsync(AuditActions.RecibirEquipo, nameof(Device), device.Id.ToString(),
+            $"Equipo {device.InventoryNumber} recibido: {previousStatus} -> {newStatus}." +
+            (string.IsNullOrWhiteSpace(notes) ? "" : $" Notas: {notes}"));
+
+        TempData["SuccessMessage"] = $"Equipo {device.InventoryNumber} actualizado a estado '{newStatus}'.";
+        return RedirectToAction(nameof(Details), new { id = deviceId });
     }
 
     [Authorize(Roles = Roles.PuedeEditar)]

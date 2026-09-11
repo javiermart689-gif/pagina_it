@@ -7,6 +7,7 @@
     <div>
         @if (User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT))
         {
+            <a class="btn btn-outline-secondary me-2" asp-action="Receive">Recibir equipo</a>
             <a class="btn btn-outline-secondary me-2" asp-action="Import">Importar Excel</a>
             <a class="btn btn-primary" asp-action="Create">Nuevo equipo</a>
         }
