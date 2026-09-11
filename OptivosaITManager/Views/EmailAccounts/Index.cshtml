@@ -17,7 +17,7 @@
 
 <div class="card-panel">
     <table class="table table-hover align-middle">
-        <thead><tr><th>Correo</th><th>Usuario</th><th>Empleado</th><th>Tipo</th><th>Estado</th><th></th></tr></thead>
+        <thead><tr><th>Correo</th><th>Usuario</th><th>Empleado</th><th>Tipo</th><th>Licencia</th><th>Estado</th><th></th></tr></thead>
         <tbody>
             @foreach (var e in Model)
             {
@@ -26,13 +26,14 @@
                     <td>@e.Username</td>
                     <td>@(e.Employee != null ? e.Employee.FirstName + " " + e.Employee.LastName : "-")</td>
                     <td>@e.AccountType</td>
+                    <td>@(e.License ?? "-")</td>
                     <td><span class="badge @(e.Status == EmailAccountStatus.Activa ? "bg-success text-white" : "bg-secondary text-white")">@e.Status</span></td>
                     <td class="text-end"><a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@e.Id">Ver</a></td>
                 </tr>
             }
             @if (!Model.Any())
             {
-                <tr><td colspan="6" class="text-center text-muted py-4">No hay cuentas de correo registradas.</td></tr>
+                <tr><td colspan="7" class="text-center text-muted py-4">No hay cuentas de correo registradas.</td></tr>
             }
         </tbody>
     </table>

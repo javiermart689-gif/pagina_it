@@ -21,6 +21,11 @@ public class EmailAccount
 
     public EmailAccountType AccountType { get; set; } = EmailAccountType.Corporativo;
 
+    // Licencia asociada (p. ej. "Microsoft 365 Business Premium"). Opcional: no todas las
+    // cuentas de correo (compartidas, distribución) tienen una licencia individual.
+    [StringLength(150)]
+    public string? License { get; set; }
+
     public EmailAccountStatus Status { get; set; } = EmailAccountStatus.Activa;
 
     [StringLength(1000)]

@@ -15,12 +15,15 @@ public class CredentialsController : Controller
     private readonly ApplicationDbContext _context;
     private readonly IEncryptionService _encryptionService;
     private readonly IAuditService _auditService;
+    private readonly ILogger<CredentialsController> _logger;
 
-    public CredentialsController(ApplicationDbContext context, IEncryptionService encryptionService, IAuditService auditService)
+    public CredentialsController(ApplicationDbContext context, IEncryptionService encryptionService,
+        IAuditService auditService, ILogger<CredentialsController> logger)
     {
         _context = context;
         _encryptionService = encryptionService;
         _auditService = auditService;
+        _logger = logger;
     }
 
     public async Task<IActionResult> Index(CredentialType? typeFilter)
@@ -167,7 +170,20 @@ public class CredentialsController : Controller
         var credential = await _context.Credentials.FindAsync(id);
         if (credential is null || !credential.IsActive) return NotFound();
 
-        var password = _encryptionService.Decrypt(credential.EncryptedPassword);
+        string password;
+        try
+        {
+            password = _encryptionService.Decrypt(credential.EncryptedPassword);
+        }
+        catch (Exception)
+        {
+            // Clave de cifrado inválida, dato corrupto, etc.: nunca se expone el detalle
+            // del error ni se registra información sensible (ni la contraseña ni la clave),
+            // solo un 400 genérico y un aviso operativo con el id de la credencial.
+            _logger.LogWarning("No se pudo desencriptar la credencial #{CredentialId}.", credential.Id);
+            return BadRequest();
+        }
+
         await _auditService.LogAsync(AuditActions.ConsultarContrasena, nameof(Credential), credential.Id.ToString(), $"Consulta de contraseña: '{credential.Name}'.");
 
         return Json(new { password });
@@ -180,7 +196,17 @@ public class CredentialsController : Controller
         var credential = await _context.Credentials.FindAsync(id);
         if (credential is null || !credential.IsActive) return NotFound();
 
-        var password = _encryptionService.Decrypt(credential.EncryptedPassword);
+        string password;
+        try
+        {
+            password = _encryptionService.Decrypt(credential.EncryptedPassword);
+        }
+        catch (Exception)
+        {
+            _logger.LogWarning("No se pudo desencriptar la credencial #{CredentialId}.", credential.Id);
+            return BadRequest();
+        }
+
         await _auditService.LogAsync(AuditActions.CopiarContrasena, nameof(Credential), credential.Id.ToString(), $"Copia de contraseña: '{credential.Name}'.");
 
         return Json(new { password });

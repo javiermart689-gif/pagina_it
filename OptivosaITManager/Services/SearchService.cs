@@ -30,17 +30,29 @@ public class SearchService : ISearchService
 
         result.Employees = await _context.Employees
             .Include(e => e.Department)
+            .Include(e => e.Location)
             .Where(e => EF.Functions.Like(e.FirstName, pattern)
                      || EF.Functions.Like(e.LastName, pattern)
                      || EF.Functions.Like(e.EmployeeNumber, pattern)
-                     || EF.Functions.Like(e.Email, pattern))
+                     || EF.Functions.Like(e.Email, pattern)
+                     || (e.Phone != null && EF.Functions.Like(e.Phone, pattern))
+                     || (e.Department != null && EF.Functions.Like(e.Department.Name, pattern))
+                     || (e.Location != null && EF.Functions.Like(e.Location.Name, pattern))
+                     || e.DeviceAssignments.Any(a => a.ReturnedAt == null && EF.Functions.Like(a.Device.InventoryNumber, pattern))
+                     || e.EmailAccounts.Any(ea => EF.Functions.Like(ea.Email, pattern) || EF.Functions.Like(ea.Username, pattern)))
             .Take(MaxResultsPerCategory)
             .Select(e => new EmployeeSearchHit
             {
                 Id = e.Id,
                 FullName = e.FirstName + " " + e.LastName,
                 Department = e.Department != null ? e.Department.Name : null,
-                Position = e.Position
+                Position = e.Position,
+                Location = e.Location != null ? e.Location.Name : null,
+                Phone = e.Phone,
+                AssignedDeviceInventoryNumber = e.DeviceAssignments
+                    .Where(a => a.ReturnedAt == null)
+                    .Select(a => a.Device.InventoryNumber)
+                    .FirstOrDefault()
             })
             .ToListAsync();
 
@@ -49,7 +61,11 @@ public class SearchService : ISearchService
                      || (d.SerialNumber != null && EF.Functions.Like(d.SerialNumber, pattern))
                      || (d.ComputerName != null && EF.Functions.Like(d.ComputerName, pattern))
                      || (d.Brand != null && EF.Functions.Like(d.Brand, pattern))
-                     || (d.Model != null && EF.Functions.Like(d.Model, pattern)))
+                     || (d.Model != null && EF.Functions.Like(d.Model, pattern))
+                     || (d.Department != null && EF.Functions.Like(d.Department.Name, pattern))
+                     || (d.Location != null && EF.Functions.Like(d.Location.Name, pattern))
+                     || d.Assignments.Any(a => a.ReturnedAt == null &&
+                            (EF.Functions.Like(a.Employee.FirstName, pattern) || EF.Functions.Like(a.Employee.LastName, pattern))))
             .Take(MaxResultsPerCategory)
             .Select(d => new DeviceSearchHit
             {

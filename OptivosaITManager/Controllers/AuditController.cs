@@ -16,11 +16,16 @@ public class AuditController : Controller
         _context = context;
     }
 
-    public async Task<IActionResult> Index(string? action, string? entityName, DateTime? from, DateTime? to, int page = 1)
+    // El parámetro de filtro NO puede llamarse "action": colisiona con el valor de ruta
+    // implícito de MVC {controller}/{action}/{id?} (el nombre de la acción actual, "Index"),
+    // que tiene mayor prioridad que la query string en el model binding por defecto. Con
+    // "action" como nombre, este filtro terminaba recibiendo siempre "Index" y la lista
+    // de auditoría salía vacía aunque no se aplicara ningún filtro manualmente.
+    public async Task<IActionResult> Index(string? actionFilter, string? entityName, DateTime? from, DateTime? to, int page = 1)
     {
         var query = _context.AuditLogs.Include(a => a.User).AsNoTracking().AsQueryable();
 
-        if (!string.IsNullOrWhiteSpace(action)) query = query.Where(a => a.Action == action);
+        if (!string.IsNullOrWhiteSpace(actionFilter)) query = query.Where(a => a.Action == actionFilter);
         if (!string.IsNullOrWhiteSpace(entityName)) query = query.Where(a => a.EntityName == entityName);
         if (from.HasValue) query = query.Where(a => a.Timestamp >= from.Value);
         if (to.HasValue) query = query.Where(a => a.Timestamp <= to.Value);
@@ -31,7 +36,7 @@ public class AuditController : Controller
             .Skip((page - 1) * pageSize).Take(pageSize)
             .ToListAsync();
 
-        ViewBag.Action = action;
+        ViewBag.ActionFilter = actionFilter;
         ViewBag.EntityName = entityName;
         ViewBag.From = from;
         ViewBag.To = to;

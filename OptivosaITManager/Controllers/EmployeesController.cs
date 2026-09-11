@@ -65,13 +65,26 @@ public class EmployeesController : Controller
 
         if (employee is null) return NotFound();
 
+        var assignedDevices = await _context.Devices
+            .Include(d => d.Credentials.Where(c => c.CredentialType == CredentialType.Equipo && c.IsActive))
+            .Where(d => d.Assignments.Any(a => a.EmployeeId == id && a.ReturnedAt == null))
+            .ToListAsync();
+
         var vm = new EmployeeDetailViewModel
         {
             Employee = employee,
-            AssignedDevices = await _context.Devices
-                .Where(d => d.Assignments.Any(a => a.EmployeeId == id && a.ReturnedAt == null))
+            AssignedDevices = assignedDevices
+                .Select(d => new AssignedDeviceInfo { Device = d, WindowsCredentials = d.Credentials.ToList() })
+                .ToList(),
+            EmailAccounts = await _context.EmailAccounts.Where(ea => ea.EmployeeId == id).ToListAsync(),
+            Dynamics365Credentials = await _context.Credentials
+                .Where(c => c.EmployeeId == id && c.CredentialType == CredentialType.Dynamics365 && c.IsActive)
                 .ToListAsync(),
-            EmailAccounts = await _context.EmailAccounts.Where(ea => ea.EmployeeId == id).ToListAsync()
+            OtherCredentials = await _context.Credentials
+                .Where(c => c.EmployeeId == id && c.IsActive
+                    && c.CredentialType != CredentialType.Equipo
+                    && c.CredentialType != CredentialType.Dynamics365)
+                .ToListAsync()
         };
 
         return View(vm);

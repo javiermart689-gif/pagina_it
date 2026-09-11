@@ -24,11 +24,15 @@
         <span asp-validation-for="Password" class="text-danger small"></span>
     </div>
 
-    <div class="col-md-6">
+    <div class="col-md-4">
         <label asp-for="AccountType" class="form-label"></label>
         <select asp-for="AccountType" class="form-select" asp-items="Html.GetEnumSelectList<EmailAccountType>()"></select>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
+        <label asp-for="License" class="form-label"></label>
+        <input asp-for="License" class="form-control" placeholder="Ej. Microsoft 365 Business Premium" />
+    </div>
+    <div class="col-md-4">
         <label asp-for="Status" class="form-label"></label>
         <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<EmailAccountStatus>()"></select>
     </div>

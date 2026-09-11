@@ -34,7 +34,11 @@ public enum CredentialType
     Aplicacion,
     Servicio,
     Administrador,
-    Otro
+    Otro,
+    // Agregados para la ficha unificada Persona -> Equipo -> Cuentas. Los valores nuevos
+    // se añaden al final para no alterar los valores numéricos ya guardados en la BD.
+    Dynamics365,
+    Vpn
 }
 
 public enum EmailAccountType

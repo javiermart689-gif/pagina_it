@@ -13,6 +13,9 @@ public class EmployeeSearchHit
     public string FullName { get; set; } = string.Empty;
     public string? Department { get; set; }
     public string? Position { get; set; }
+    public string? Location { get; set; }
+    public string? Phone { get; set; }
+    public string? AssignedDeviceInventoryNumber { get; set; }
 }
 
 public class DeviceSearchHit

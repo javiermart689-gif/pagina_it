@@ -23,6 +23,10 @@ public class EmailAccountFormViewModel
     [Display(Name = "Tipo de cuenta")]
     public EmailAccountType AccountType { get; set; }
 
+    [StringLength(150)]
+    [Display(Name = "Licencia")]
+    public string? License { get; set; }
+
     public EmailAccountStatus Status { get; set; }
 
     [StringLength(1000)]

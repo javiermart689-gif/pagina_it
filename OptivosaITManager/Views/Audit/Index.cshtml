@@ -7,11 +7,11 @@
 <h3 class="mb-3">Auditoría</h3>
 
 <form method="get" class="table-toolbar card-panel">
-    <select name="action" class="form-select" style="max-width:220px">
+    <select name="actionFilter" class="form-select" style="max-width:220px">
         <option value="">Todas las acciones</option>
         @foreach (var a in actions)
         {
-            <option value="@a" selected="@(a == (string)ViewBag.Action)">@a</option>
+            <option value="@a" selected="@(a == (string)ViewBag.ActionFilter)">@a</option>
         }
     </select>
     <select name="entityName" class="form-select" style="max-width:200px">
@@ -56,7 +56,7 @@
                 @for (var p = 1; p <= (int)ViewBag.TotalPages; p++)
                 {
                     <li class="page-item @(p == (int)ViewBag.Page ? "active" : "")">
-                        <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-action="@ViewBag.Action" asp-route-entityName="@ViewBag.EntityName">@p</a>
+                        <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-actionFilter="@ViewBag.ActionFilter" asp-route-entityName="@ViewBag.EntityName">@p</a>
                     </li>
                 }
             </ul>

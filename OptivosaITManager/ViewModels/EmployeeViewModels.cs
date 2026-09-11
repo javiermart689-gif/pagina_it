@@ -49,6 +49,22 @@ public class EmployeeFormViewModel
 public class EmployeeDetailViewModel
 {
     public Employee Employee { get; set; } = null!;
-    public List<Device> AssignedDevices { get; set; } = new();
+
+    /// <summary>Equipo(s) asignados actualmente, cada uno con sus credenciales de Windows (CredentialType.Equipo).</summary>
+    public List<AssignedDeviceInfo> AssignedDevices { get; set; } = new();
+
+    /// <summary>Cuentas de correo / Microsoft 365 (incluye licencia).</summary>
     public List<EmailAccount> EmailAccounts { get; set; } = new();
+
+    /// <summary>Credenciales de Dynamics 365, independientes de las de Microsoft 365.</summary>
+    public List<Credential> Dynamics365Credentials { get; set; } = new();
+
+    /// <summary>Otros accesos extensibles: VPN, sistemas internos, aplicaciones, servicios, etc.</summary>
+    public List<Credential> OtherCredentials { get; set; } = new();
+}
+
+public class AssignedDeviceInfo
+{
+    public Device Device { get; set; } = null!;
+    public List<Credential> WindowsCredentials { get; set; } = new();
 }

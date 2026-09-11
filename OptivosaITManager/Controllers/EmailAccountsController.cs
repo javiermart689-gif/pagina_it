@@ -15,12 +15,15 @@ public class EmailAccountsController : Controller
     private readonly ApplicationDbContext _context;
     private readonly IEncryptionService _encryptionService;
     private readonly IAuditService _auditService;
+    private readonly ILogger<EmailAccountsController> _logger;
 
-    public EmailAccountsController(ApplicationDbContext context, IEncryptionService encryptionService, IAuditService auditService)
+    public EmailAccountsController(ApplicationDbContext context, IEncryptionService encryptionService,
+        IAuditService auditService, ILogger<EmailAccountsController> logger)
     {
         _context = context;
         _encryptionService = encryptionService;
         _auditService = auditService;
+        _logger = logger;
     }
 
     public async Task<IActionResult> Index(string? searchTerm)
@@ -52,9 +55,9 @@ public class EmailAccountsController : Controller
     }
 
     [Authorize(Roles = Roles.Administrador)]
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> Create(int? employeeId)
     {
-        return View(await BuildFormAsync(new EmailAccountFormViewModel { Status = EmailAccountStatus.Activa }));
+        return View(await BuildFormAsync(new EmailAccountFormViewModel { Status = EmailAccountStatus.Activa, EmployeeId = employeeId }));
     }
 
     [HttpPost]
@@ -84,6 +87,7 @@ public class EmailAccountsController : Controller
             Username = input.Username,
             EncryptedPassword = _encryptionService.Encrypt(input.Password),
             AccountType = input.AccountType,
+            License = input.License,
             Status = input.Status,
             Notes = input.Notes,
             CreatedAt = DateTime.UtcNow
@@ -110,6 +114,7 @@ public class EmailAccountsController : Controller
             Email = account.Email,
             Username = account.Username,
             AccountType = account.AccountType,
+            License = account.License,
             Status = account.Status,
             Notes = account.Notes
         };
@@ -145,6 +150,7 @@ public class EmailAccountsController : Controller
             account.EncryptedPassword = _encryptionService.Encrypt(input.Password);
         }
         account.AccountType = input.AccountType;
+        account.License = input.License;
         account.Status = input.Status;
         account.Notes = input.Notes;
         account.UpdatedAt = DateTime.UtcNow;
@@ -154,6 +160,60 @@ public class EmailAccountsController : Controller
 
         TempData["SuccessMessage"] = "Cuenta de correo actualizada correctamente.";
         return RedirectToAction(nameof(Details), new { id = account.Id });
+    }
+
+    /// <summary>
+    /// Desencripta la contraseña únicamente en memoria y la registra en auditoría.
+    /// Restringido a roles autorizados de IT (misma política que Credentials).
+    /// </summary>
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = Roles.PuedeVerCredenciales)]
+    public async Task<IActionResult> RevealPassword(int id)
+    {
+        var account = await _context.EmailAccounts.FindAsync(id);
+        if (account is null) return NotFound();
+
+        string password;
+        try
+        {
+            password = _encryptionService.Decrypt(account.EncryptedPassword);
+        }
+        catch (Exception)
+        {
+            // Nunca se expone el detalle del error (clave inválida, dato corrupto, etc.):
+            // solo un 400 genérico. Tampoco se registra la excepción con datos sensibles.
+            _logger.LogWarning("No se pudo desencriptar la cuenta de correo #{EmailAccountId}.", account.Id);
+            return BadRequest();
+        }
+
+        await _auditService.LogAsync(AuditActions.ConsultarContrasena, nameof(EmailAccount), account.Id.ToString(), $"Consulta de contraseña: '{account.Email}'.");
+
+        return Json(new { password });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = Roles.PuedeVerCredenciales)]
+    public async Task<IActionResult> CopyPassword(int id)
+    {
+        var account = await _context.EmailAccounts.FindAsync(id);
+        if (account is null) return NotFound();
+
+        string password;
+        try
+        {
+            password = _encryptionService.Decrypt(account.EncryptedPassword);
+        }
+        catch (Exception)
+        {
+            _logger.LogWarning("No se pudo desencriptar la cuenta de correo #{EmailAccountId}.", account.Id);
+            return BadRequest();
+        }
+
+        await _auditService.LogAsync(AuditActions.CopiarContrasena, nameof(EmailAccount), account.Id.ToString(), $"Copia de contraseña: '{account.Email}'.");
+
+        return Json(new { password });
     }
 
     private async Task<EmailAccountFormViewModel> BuildFormAsync(EmailAccountFormViewModel input)

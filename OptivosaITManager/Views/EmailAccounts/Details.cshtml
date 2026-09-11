@@ -2,7 +2,10 @@
 @{
     var account = Model.EmailAccount;
     ViewData["Title"] = account.Email;
+    var canViewPasswords = User.IsInRole(Roles.Administrador) || User.IsInRole(Roles.TecnicoIT);
 }
+<form>@Html.AntiForgeryToken()</form>
+
 <div class="d-flex justify-content-between align-items-start mb-3">
     <div>
         <h3 class="mb-0">@account.Email</h3>
@@ -16,7 +19,18 @@
 
 <div class="card-panel mb-3">
     <p class="mb-1"><strong>Usuario:</strong> @account.Username</p>
+    <p class="mb-1"><strong>Licencia:</strong> @(account.License ?? "-")</p>
     <p class="mb-1"><strong>Empleado:</strong> @(account.Employee != null ? account.Employee.FirstName + " " + account.Employee.LastName : "Sin asignar")</p>
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+        <strong>Contraseña:</strong> <span class="password-mask" data-password-slot="m365-@account.Id">••••••••</span>
+        @if (canViewPasswords)
+        {
+            <button type="button" class="btn btn-sm btn-outline-secondary"
+                    data-reveal-url="/EmailAccounts/RevealPassword/@account.Id" data-reveal-target="m365-@account.Id">Mostrar contraseña</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary"
+                    data-copy-url="/EmailAccounts/CopyPassword/@account.Id">Copiar</button>
+        }
+    </div>
     <p class="mb-0"><strong>Notas:</strong> @account.Notes</p>
 </div>
 

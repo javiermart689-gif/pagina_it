@@ -1,15 +1,18 @@
-// Revelar contraseña de una credencial de forma temporal (consulta auditada en el servidor).
+// Revelar/copiar una contraseña de forma temporal (consulta auditada en el servidor).
+// Funciona para cualquier entidad con contraseña (Credential, EmailAccount, ...): cada
+// botón indica su propia URL vía data-reveal-url / data-copy-url y a qué slot de la
+// página debe escribir el valor revelado vía data-reveal-target.
 document.addEventListener('click', async function (e) {
-    const revealBtn = e.target.closest('[data-reveal-credential]');
+    const revealBtn = e.target.closest('[data-reveal-url]');
     if (revealBtn) {
         e.preventDefault();
-        const credentialId = revealBtn.getAttribute('data-reveal-credential');
-        const target = document.querySelector(`[data-password-slot="${credentialId}"]`);
+        const url = revealBtn.getAttribute('data-reveal-url');
+        const target = document.querySelector(`[data-password-slot="${revealBtn.getAttribute('data-reveal-target')}"]`);
         if (!target) return;
 
         try {
             const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-            const response = await fetch(`/Credentials/RevealPassword/${credentialId}`, {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'RequestVerificationToken': token || '' }
             });
@@ -35,14 +38,14 @@ document.addEventListener('click', async function (e) {
         return;
     }
 
-    const copyBtn = e.target.closest('[data-copy-credential]');
+    const copyBtn = e.target.closest('[data-copy-url]');
     if (copyBtn) {
         e.preventDefault();
-        const credentialId = copyBtn.getAttribute('data-copy-credential');
+        const url = copyBtn.getAttribute('data-copy-url');
         const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
 
         try {
-            const response = await fetch(`/Credentials/CopyPassword/${credentialId}`, {
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'RequestVerificationToken': token || '' }
             });
