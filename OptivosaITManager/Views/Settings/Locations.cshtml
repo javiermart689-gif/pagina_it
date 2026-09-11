@@ -15,7 +15,7 @@
                 <tr>
                     <td>@l.Name</td>
                     <td>@l.Address</td>
-                    <td><span class="badge @(l.IsActive ? "text-bg-success" : "text-bg-secondary")">@(l.IsActive ? "Activo" : "Inactivo")</span></td>
+                    <td><span class="badge @(l.IsActive ? "bg-success text-white" : "bg-secondary text-white")">@(l.IsActive ? "Activo" : "Inactivo")</span></td>
                     <td class="text-end"><a class="btn btn-sm btn-outline-secondary" asp-action="LocationEdit" asp-route-id="@l.Id">Editar</a></td>
                 </tr>
             }

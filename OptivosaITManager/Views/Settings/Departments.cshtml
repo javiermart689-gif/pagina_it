@@ -15,7 +15,7 @@
                 <tr>
                     <td>@d.Name</td>
                     <td>@d.Description</td>
-                    <td><span class="badge @(d.IsActive ? "text-bg-success" : "text-bg-secondary")">@(d.IsActive ? "Activo" : "Inactivo")</span></td>
+                    <td><span class="badge @(d.IsActive ? "bg-success text-white" : "bg-secondary text-white")">@(d.IsActive ? "Activo" : "Inactivo")</span></td>
                     <td class="text-end"><a class="btn btn-sm btn-outline-secondary" asp-action="DepartmentEdit" asp-route-id="@d.Id">Editar</a></td>
                 </tr>
             }

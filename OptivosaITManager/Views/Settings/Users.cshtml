@@ -19,11 +19,11 @@
                     <td>
                         @if (u.LockedOut)
                         {
-                            <span class="badge text-bg-danger">Bloqueado</span>
+                            <span class="badge bg-danger text-white">Bloqueado</span>
                         }
                         else
                         {
-                            <span class="badge text-bg-success">Activo</span>
+                            <span class="badge bg-success text-white">Activo</span>
                         }
                     </td>
                     <td class="text-end"><a class="btn btn-sm btn-outline-secondary" asp-action="EditUserRoles" asp-route-id="@u.Id">Editar roles</a></td>

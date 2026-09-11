@@ -33,10 +33,10 @@
                         @{
                             var badge = row.Status switch
                             {
-                                ImportRowStatus.Valido => "text-bg-success",
-                                ImportRowStatus.Duplicado => "text-bg-warning",
-                                ImportRowStatus.Incompleto => "text-bg-secondary",
-                                _ => "text-bg-danger"
+                                ImportRowStatus.Valido => "bg-success text-white",
+                                ImportRowStatus.Duplicado => "bg-warning text-dark",
+                                ImportRowStatus.Incompleto => "bg-secondary text-white",
+                                _ => "bg-danger text-white"
                             };
                         }
                         <span class="badge @badge">@row.Status</span>

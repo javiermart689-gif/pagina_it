@@ -45,7 +45,7 @@
                 <ul class="list-unstyled mb-0">
                     @foreach (var ea in Model.EmailAccounts)
                     {
-                        <li><a asp-controller="EmailAccounts" asp-action="Details" asp-route-id="@ea.Id">@ea.Email</a> <span class="badge text-bg-light">@ea.AccountType</span></li>
+                        <li><a asp-controller="EmailAccounts" asp-action="Details" asp-route-id="@ea.Id">@ea.Email</a> <span class="badge bg-light text-dark">@ea.AccountType</span></li>
                     }
                 </ul>
             }
@@ -69,7 +69,7 @@
                     <tr>
                         <td><a asp-controller="Devices" asp-action="Details" asp-route-id="@d.Id">@d.InventoryNumber</a></td>
                         <td>@d.Brand @d.Model</td>
-                        <td><span class="badge text-bg-primary">@d.Status</span></td>
+                        <td><span class="badge bg-primary text-white">@d.Status</span></td>
                     </tr>
                 }
             </tbody>

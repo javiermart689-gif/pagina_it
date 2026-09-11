@@ -28,7 +28,7 @@
     <div class="col-md-6">
         <div class="card-panel h-100">
             <h6>Estado y ubicación</h6>
-            <p class="mb-1"><strong>Estado:</strong> <span class="badge text-bg-primary">@device.Status</span></p>
+            <p class="mb-1"><strong>Estado:</strong> <span class="badge bg-primary text-white">@device.Status</span></p>
             <p class="mb-1"><strong>Tipo:</strong> @device.DeviceType</p>
             <p class="mb-1"><strong>Sistema operativo:</strong> @device.OperatingSystem</p>
             <p class="mb-1"><strong>Departamento:</strong> @device.Department?.Name</p>
@@ -127,7 +127,7 @@
                     <tr>
                         <td>@m.ReportedAt.ToLocalTime().ToString("dd/MM/yyyy")</td>
                         <td>@m.Problem</td>
-                        <td><span class="badge text-bg-info">@m.Status</span></td>
+                        <td><span class="badge bg-info text-dark">@m.Status</span></td>
                         <td>@(m.CompletedAt?.ToLocalTime().ToString("dd/MM/yyyy") ?? "-")</td>
                     </tr>
                 }

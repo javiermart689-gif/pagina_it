@@ -26,7 +26,7 @@
                     <td>@e.Username</td>
                     <td>@(e.Employee != null ? e.Employee.FirstName + " " + e.Employee.LastName : "-")</td>
                     <td>@e.AccountType</td>
-                    <td><span class="badge @(e.Status == EmailAccountStatus.Activa ? "text-bg-success" : "text-bg-secondary")">@e.Status</span></td>
+                    <td><span class="badge @(e.Status == EmailAccountStatus.Activa ? "bg-success text-white" : "bg-secondary text-white")">@e.Status</span></td>
                     <td class="text-end"><a class="btn btn-sm btn-outline-secondary" asp-action="Details" asp-route-id="@e.Id">Ver</a></td>
                 </tr>
             }

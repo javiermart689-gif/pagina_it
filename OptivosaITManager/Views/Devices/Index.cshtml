@@ -99,12 +99,12 @@
 @functions {
     string StatusBadgeClass(DeviceStatus status) => status switch
     {
-        DeviceStatus.Disponible => "text-bg-success",
-        DeviceStatus.Asignado => "text-bg-primary",
-        DeviceStatus.Mantenimiento => "text-bg-warning",
-        DeviceStatus.Baja => "text-bg-secondary",
-        DeviceStatus.Perdido => "text-bg-danger",
-        _ => "text-bg-light"
+        DeviceStatus.Disponible => "bg-success text-white",
+        DeviceStatus.Asignado => "bg-primary text-white",
+        DeviceStatus.Mantenimiento => "bg-warning text-dark",
+        DeviceStatus.Baja => "bg-secondary text-white",
+        DeviceStatus.Perdido => "bg-danger text-white",
+        _ => "bg-light text-dark"
     };
 
     Dictionary<string, string?> GetSortRoute(string column)
