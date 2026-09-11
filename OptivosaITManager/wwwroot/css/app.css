@@ -263,3 +263,135 @@ a:hover {
 @media (max-width: 900px) {
     .app-sidebar { display: none; }
 }
+
+/* ============================================================
+   Transición Login -> Dashboard
+   No hay SPA ni cambios en la autenticación: el login sigue siendo un POST normal
+   del navegador (dos cargas de página reales). Este bloque solo agrega una capa
+   visual: un overlay de branding mostrado en la página de Login mientras el
+   navegador procesa la navegación, y una entrada suave del contenido principal
+   en la página siguiente (Dashboard u otra, según ReturnUrl). Ver app.js.
+   ============================================================ */
+
+.auth-transition-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--optivosa-sidebar-bg), var(--optivosa-primary-dark));
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s ease;
+}
+
+.auth-transition-overlay.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.auth-transition-content {
+    text-align: center;
+    color: #fff;
+}
+
+.auth-transition-logo {
+    height: 46px;
+    width: auto;
+    margin-bottom: .75rem;
+}
+
+.auth-transition-tagline {
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #b9c4de;
+    margin-bottom: 1.1rem;
+}
+
+.auth-transition-check {
+    width: 32px;
+    height: 32px;
+    margin: 0 auto;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, .5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(.7);
+    animation: authCheckIn .3s ease .2s forwards;
+}
+
+.auth-transition-check svg {
+    width: 15px;
+    height: 15px;
+    stroke: #fff;
+    stroke-width: 3;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 20;
+    stroke-dashoffset: 20;
+    animation: authCheckDraw .25s ease .3s forwards;
+}
+
+@keyframes authCheckIn {
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes authCheckDraw {
+    to { stroke-dashoffset: 0; }
+}
+
+/* Entrada suave del contenido principal justo después de iniciar sesión (una sola vez,
+   activada por app.js mediante sessionStorage; no aplica en cada navegación normal). */
+.app-content.is-entering {
+    animation: appContentEnter .4s ease both;
+}
+
+@keyframes appContentEnter {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.btn-login-spinner {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    border: 2px solid rgba(255, 255, 255, .4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    margin-left: .5rem;
+    vertical-align: -2px;
+    animation: btnLoginSpin .6s linear infinite;
+}
+
+@keyframes btnLoginSpin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .auth-transition-overlay {
+        transition: none;
+    }
+    .auth-transition-check,
+    .auth-transition-check svg,
+    .app-content.is-entering,
+    .btn-login-spinner {
+        animation: none !important;
+    }
+    .app-content.is-entering {
+        opacity: 1;
+        transform: none;
+    }
+    .auth-transition-check {
+        opacity: 1;
+        transform: none;
+    }
+    .auth-transition-check svg {
+        stroke-dashoffset: 0;
+    }
+}
