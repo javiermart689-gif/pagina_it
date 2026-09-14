@@ -93,6 +93,18 @@ public enum TelecomServiceType
 
 public static class TelecomServiceTypeExtensions
 {
+    /// <summary>
+    /// Tipos ofrecidos actualmente en formularios y filtros (a pedido del negocio, solo
+    /// Internet y Telefonía). El enum conserva el resto de los valores (LineaTelefonica,
+    /// Enlace, DatosMoviles, Otro) sin eliminarlos, para no romper ningún registro que ya
+    /// exista con esos tipos; simplemente dejan de ofrecerse como opción nueva.
+    /// </summary>
+    public static readonly TelecomServiceType[] SelectableTypes =
+    {
+        TelecomServiceType.Internet,
+        TelecomServiceType.Telefonia
+    };
+
     /// <summary>Nombre a mostrar en pantalla (usa el mismo [Display] que Html.GetEnumSelectList).</summary>
     public static string DisplayName(this TelecomServiceType type)
     {

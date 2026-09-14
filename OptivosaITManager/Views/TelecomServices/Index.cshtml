@@ -5,7 +5,7 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
         <h3 class="mb-0">Servicios de Telecomunicaciones</h3>
-        <p class="text-muted small mb-0">Catálogo de referencia de Internet, telefonía y enlaces contratados con proveedores. No sustituye al sistema de tickets.</p>
+        <p class="text-muted small mb-0">Catálogo de referencia de Internet y telefonía contratados con proveedores. No sustituye al sistema de tickets.</p>
     </div>
     @if (User.IsInRole(Roles.SistemasTI))
     {
@@ -19,7 +19,7 @@
     <div class="table-toolbar">
         <select name="typeFilter" class="form-select" style="max-width:190px">
             <option value="">Todos los tipos</option>
-            @foreach (var t in Enum.GetValues<TelecomServiceType>())
+            @foreach (var t in TelecomServiceTypeExtensions.SelectableTypes)
             {
                 <option value="@t" selected="@(Model.TypeFilter == t)">@t.DisplayName()</option>
             }

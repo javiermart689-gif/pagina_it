@@ -74,12 +74,12 @@
     <div class="col-md-6 col-lg-3">
         <div class="card-panel h-100 d-flex flex-column">
             <h6>Servicios de Telecomunicaciones</h6>
-            <p class="text-muted small flex-grow-1">Internet, telefonía y enlaces con proveedor, números de referencia y soporte.</p>
+            <p class="text-muted small flex-grow-1">Internet y telefonía con proveedor, números de referencia y soporte.</p>
             <div class="row g-2 mb-2">
                 <div class="col-6">
                     <select name="ServiceType" form="reportFiltersForm" class="form-select form-select-sm">
                         <option value="">Todos los tipos</option>
-                        @foreach (var t in Enum.GetValues<TelecomServiceType>())
+                        @foreach (var t in TelecomServiceTypeExtensions.SelectableTypes)
                         {
                             <option value="@t">@t.DisplayName()</option>
                         }

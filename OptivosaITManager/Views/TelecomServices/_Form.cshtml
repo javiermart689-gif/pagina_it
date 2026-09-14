@@ -14,7 +14,12 @@
 <div class="row g-3">
     <div class="col-md-4">
         <label asp-for="ServiceType" class="form-label"></label>
-        <select asp-for="ServiceType" class="form-select" asp-items="Html.GetEnumSelectList<TelecomServiceType>()"></select>
+        <select asp-for="ServiceType" class="form-select">
+            @foreach (var t in TelecomServiceTypeExtensions.SelectableTypes)
+            {
+                <option value="@((int)t)" selected="@(Model.ServiceType == t)">@t.DisplayName()</option>
+            }
+        </select>
     </div>
     <div class="col-md-4">
         <label asp-for="Provider" class="form-label"></label>
