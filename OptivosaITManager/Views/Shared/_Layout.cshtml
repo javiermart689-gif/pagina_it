@@ -24,10 +24,6 @@
             <nav class="sidebar-nav">
                 <a class="nav-link" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
                 <a class="nav-link" asp-controller="Devices" asp-action="Index">Equipos</a>
-                @if (User.IsInRole(Roles.SistemasTI))
-                {
-                    <a class="nav-link" asp-controller="Devices" asp-action="FindOrRegister">Escanear QR</a>
-                }
                 <a class="nav-link" asp-controller="Employees" asp-action="Index">Usuarios</a>
                 @if (User.IsInRole(Roles.SistemasTI))
                 {
