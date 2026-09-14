@@ -49,7 +49,7 @@
                 <span data-copy-slot="service-number">@(service.ServiceNumber ?? "-")</span>
                 @if (!string.IsNullOrEmpty(service.ServiceNumber))
                 {
-                    <button type="button" class="btn btn-sm btn-outline-secondary" data-copy-text="@service.ServiceNumber">📋 Copiar</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-copy-text="@service.ServiceNumber">Copiar</button>
                 }
             </p>
             <p class="mb-2"><strong>Número de cuenta:</strong> @(service.AccountNumber ?? "-")</p>
@@ -58,7 +58,7 @@
                 <span>@(service.PhoneNumber ?? "-")</span>
                 @if (!string.IsNullOrEmpty(service.PhoneNumber))
                 {
-                    <button type="button" class="btn btn-sm btn-outline-secondary" data-copy-text="@service.PhoneNumber">📋 Copiar</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-copy-text="@service.PhoneNumber">Copiar</button>
                 }
             </p>
             <p class="mb-0"><strong>Dirección:</strong> @(service.Address ?? "-")</p>
@@ -73,7 +73,7 @@
                 <span>@(service.SupportPhone ?? "-")</span>
                 @if (!string.IsNullOrEmpty(service.SupportPhone))
                 {
-                    <button type="button" class="btn btn-sm btn-outline-secondary" data-copy-text="@service.SupportPhone">📋 Copiar</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-copy-text="@service.SupportPhone">Copiar</button>
                 }
             </p>
             <p class="mb-2"><strong>Correo:</strong> @(service.SupportEmail ?? "-")</p>

@@ -22,47 +22,25 @@
                 </div>
             </div>
             <nav class="sidebar-nav">
-                <a class="nav-link" asp-controller="Dashboard" asp-action="Index">
-                    <i class="bi-icon">▦</i> Dashboard
-                </a>
-                <a class="nav-link" asp-controller="Devices" asp-action="Index">
-                    <i class="bi-icon">💻</i> Equipos
-                </a>
-                <a class="nav-link" asp-controller="Employees" asp-action="Index">
-                    <i class="bi-icon">👤</i> Usuarios
-                </a>
+                <a class="nav-link" asp-controller="Dashboard" asp-action="Index">Dashboard</a>
+                <a class="nav-link" asp-controller="Devices" asp-action="Index">Equipos</a>
+                <a class="nav-link" asp-controller="Employees" asp-action="Index">Usuarios</a>
                 @if (User.IsInRole(Roles.SistemasTI))
                 {
-                    <a class="nav-link" asp-controller="Credentials" asp-action="Index">
-                        <i class="bi-icon">🔑</i> Credenciales
-                    </a>
+                    <a class="nav-link" asp-controller="Credentials" asp-action="Index">Credenciales</a>
                 }
                 @if (User.IsInRole(Roles.SistemasTI))
                 {
-                    <a class="nav-link" asp-controller="EmailAccounts" asp-action="Index">
-                        <i class="bi-icon">✉</i> Cuentas de correo
-                    </a>
-                    <a class="nav-link" asp-controller="Assignments" asp-action="Index">
-                        <i class="bi-icon">🔄</i> Asignaciones
-                    </a>
-                    <a class="nav-link" asp-controller="Maintenance" asp-action="Index">
-                        <i class="bi-icon">🛠</i> Mantenimiento
-                    </a>
+                    <a class="nav-link" asp-controller="EmailAccounts" asp-action="Index">Cuentas de correo</a>
+                    <a class="nav-link" asp-controller="Assignments" asp-action="Index">Asignaciones</a>
+                    <a class="nav-link" asp-controller="Maintenance" asp-action="Index">Mantenimiento</a>
                 }
-                <a class="nav-link" asp-controller="TelecomServices" asp-action="Index">
-                    <i class="bi-icon">📡</i> Servicios de Telecomunicaciones
-                </a>
-                <a class="nav-link" asp-controller="Reports" asp-action="Index">
-                    <i class="bi-icon">📊</i> Reportes
-                </a>
+                <a class="nav-link" asp-controller="TelecomServices" asp-action="Index">Servicios de Telecomunicaciones</a>
+                <a class="nav-link" asp-controller="Reports" asp-action="Index">Reportes</a>
                 @if (User.IsInRole(Roles.SistemasTI))
                 {
-                    <a class="nav-link" asp-controller="Audit" asp-action="Index">
-                        <i class="bi-icon">📋</i> Auditoría
-                    </a>
-                    <a class="nav-link" asp-controller="Settings" asp-action="Index">
-                        <i class="bi-icon">⚙</i> Configuración
-                    </a>
+                    <a class="nav-link" asp-controller="Audit" asp-action="Index">Auditoría</a>
+                    <a class="nav-link" asp-controller="Settings" asp-action="Index">Configuración</a>
                 }
             </nav>
         </aside>

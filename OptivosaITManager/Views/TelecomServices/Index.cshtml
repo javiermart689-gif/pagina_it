@@ -61,7 +61,7 @@ else
                 <a asp-action="Details" asp-route-id="@s.Id" class="text-decoration-none text-reset">
                     <div class="card-panel h-100">
                         <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div class="fw-semibold">@ServiceTypeIcon(s.ServiceType) @s.ServiceType.DisplayName().ToUpperInvariant()</div>
+                            <div class="fw-semibold">@s.ServiceType.DisplayName().ToUpperInvariant()</div>
                             @if (!s.IsActive)
                             {
                                 <span class="badge bg-secondary text-white">Inactivo</span>
@@ -87,16 +87,4 @@ else
             </div>
         }
     </div>
-}
-
-@functions {
-    string ServiceTypeIcon(TelecomServiceType type) => type switch
-    {
-        TelecomServiceType.Internet => "📡",
-        TelecomServiceType.Telefonia => "☎️",
-        TelecomServiceType.LineaTelefonica => "☎️",
-        TelecomServiceType.Enlace => "🔗",
-        TelecomServiceType.DatosMoviles => "📶",
-        _ => "🗂️"
-    };
 }

@@ -80,12 +80,6 @@ body {
     color: #fff;
 }
 
-.bi-icon {
-    font-style: normal;
-    width: 1.2rem;
-    text-align: center;
-}
-
 .app-main {
     flex-grow: 1;
     display: flex;
