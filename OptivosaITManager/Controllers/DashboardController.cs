@@ -29,7 +29,7 @@ public class DashboardController : Controller
             MaintenanceDevices = await devices.CountAsync(d => d.Status == DeviceStatus.Mantenimiento),
             RetiredDevices = await devices.CountAsync(d => d.Status == DeviceStatus.Baja),
             TotalEmployees = await _context.Employees.CountAsync(e => e.Status == EmployeeStatus.Activo),
-            TotalEmailAccounts = await _context.EmailAccounts.CountAsync()
+            TotalAccesses = await _context.Accesses.CountAsync(a => a.Status != AccessStatus.Baja)
         };
 
         vm.DevicesByStatus = await devices

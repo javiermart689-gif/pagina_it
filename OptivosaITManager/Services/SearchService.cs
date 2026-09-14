@@ -39,7 +39,7 @@ public class SearchService : ISearchService
                      || (e.Department != null && EF.Functions.Like(e.Department.Name, pattern))
                      || (e.Location != null && EF.Functions.Like(e.Location.Name, pattern))
                      || e.DeviceAssignments.Any(a => a.ReturnedAt == null && EF.Functions.Like(a.Device.InventoryNumber, pattern))
-                     || e.EmailAccounts.Any(ea => EF.Functions.Like(ea.Email, pattern) || EF.Functions.Like(ea.Username, pattern)))
+                     || e.Accesses.Any(ac => EF.Functions.Like(ac.Username, pattern) || EF.Functions.Like(ac.Name, pattern)))
             .Take(MaxResultsPerCategory)
             .Select(e => new EmployeeSearchHit
             {
@@ -76,15 +76,24 @@ public class SearchService : ISearchService
             })
             .ToListAsync();
 
-        result.Emails = await _context.EmailAccounts
-            .Include(e => e.Employee)
-            .Where(e => EF.Functions.Like(e.Email, pattern) || EF.Functions.Like(e.Username, pattern))
+        result.Accesses = await _context.Accesses
+            .Include(a => a.Employee)
+            .Include(a => a.Device)
+            .Where(a => a.Status != Models.AccessStatus.Baja &&
+                     (EF.Functions.Like(a.Name, pattern)
+                     || EF.Functions.Like(a.Username, pattern)
+                     || (a.ServiceName != null && EF.Functions.Like(a.ServiceName, pattern))
+                     || (a.Employee != null && (EF.Functions.Like(a.Employee.FirstName, pattern) || EF.Functions.Like(a.Employee.LastName, pattern)))
+                     || (a.Device != null && EF.Functions.Like(a.Device.InventoryNumber, pattern))))
             .Take(MaxResultsPerCategory)
-            .Select(e => new EmailSearchHit
+            .Select(a => new AccessSearchHit
             {
-                Id = e.Id,
-                Email = e.Email,
-                EmployeeName = e.Employee != null ? e.Employee.FirstName + " " + e.Employee.LastName : null
+                Id = a.Id,
+                Name = a.Name,
+                Type = a.Type.ToString(),
+                Username = a.Username,
+                RelatedTo = a.Employee != null ? a.Employee.FirstName + " " + a.Employee.LastName
+                    : a.Device != null ? a.Device.InventoryNumber : null
             })
             .ToListAsync();
 

@@ -60,19 +60,19 @@ else
     </div>
     <div class="col-md-4">
         <div class="card-panel h-100">
-            <h6>Correo</h6>
-            @if (!Model.Emails.Any())
+            <h6>🔐 Accesos</h6>
+            @if (!Model.Accesses.Any())
             {
                 <p class="text-muted small mb-0">Sin resultados.</p>
             }
             else
             {
                 <ul class="list-unstyled mb-0">
-                    @foreach (var e in Model.Emails)
+                    @foreach (var a in Model.Accesses)
                     {
                         <li class="mb-2">
-                            <a asp-controller="EmailAccounts" asp-action="Details" asp-route-id="@e.Id">@e.Email</a><br />
-                            <small class="text-muted">@e.EmployeeName</small>
+                            <a asp-controller="Accesses" asp-action="Edit" asp-route-id="@a.Id">@a.Name</a> <span class="text-muted small">(@a.Type)</span><br />
+                            <small class="text-muted">@a.Username @(a.RelatedTo != null ? "· " + a.RelatedTo : "")</small>
                         </li>
                     }
                 </ul>

@@ -15,11 +15,9 @@ public static class AuditActions
     public const string ActualizarMantenimiento = "ActualizarMantenimiento";
     public const string ConsultarContrasena = "ConsultarContrasena";
     public const string CopiarContrasena = "CopiarContrasena";
-    public const string CrearCredencial = "CrearCredencial";
-    public const string ModificarCredencial = "ModificarCredencial";
-    public const string EliminarCredencial = "EliminarCredencial";
-    public const string CrearCorreo = "CrearCorreo";
-    public const string ModificarCorreo = "ModificarCorreo";
+    public const string CrearAcceso = "CrearAcceso";
+    public const string ModificarAcceso = "ModificarAcceso";
+    public const string DesactivarAcceso = "DesactivarAcceso";
     public const string ImportarExcel = "ImportarExcel";
     public const string GenerarQR = "GenerarQR";
     public const string EscanearQR = "EscanearQR";

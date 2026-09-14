@@ -4,7 +4,7 @@ public class SearchResultViewModel
 {
     public List<EmployeeSearchHit> Employees { get; set; } = new();
     public List<DeviceSearchHit> Devices { get; set; } = new();
-    public List<EmailSearchHit> Emails { get; set; } = new();
+    public List<AccessSearchHit> Accesses { get; set; } = new();
     public List<TelecomServiceSearchHit> TelecomServices { get; set; } = new();
 }
 
@@ -27,11 +27,13 @@ public class DeviceSearchHit
     public string Status { get; set; } = string.Empty;
 }
 
-public class EmailSearchHit
+public class AccessSearchHit
 {
     public int Id { get; set; }
-    public string Email { get; set; } = string.Empty;
-    public string? EmployeeName { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
+    public string Username { get; set; } = string.Empty;
+    public string? RelatedTo { get; set; }
 }
 
 public class TelecomServiceSearchHit

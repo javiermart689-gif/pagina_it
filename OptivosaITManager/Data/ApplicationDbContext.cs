@@ -16,8 +16,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Employee> Employees => Set<Employee>();
     public DbSet<Device> Devices => Set<Device>();
     public DbSet<DeviceAssignment> DeviceAssignments => Set<DeviceAssignment>();
-    public DbSet<Credential> Credentials => Set<Credential>();
-    public DbSet<EmailAccount> EmailAccounts => Set<EmailAccount>();
+    public DbSet<AccessCredential> Accesses => Set<AccessCredential>();
     public DbSet<Maintenance> MaintenanceRecords => Set<Maintenance>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<TelecomService> TelecomServices => Set<TelecomService>();
@@ -51,17 +50,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasIndex(a => new { a.DeviceId, a.ReturnedAt });
         });
 
-        builder.Entity<Credential>(entity =>
+        builder.Entity<AccessCredential>(entity =>
         {
-            entity.HasOne(c => c.Device).WithMany(d => d.Credentials).HasForeignKey(c => c.DeviceId).OnDelete(DeleteBehavior.Cascade);
-            entity.HasOne(c => c.Employee).WithMany(e => e.Credentials).HasForeignKey(c => c.EmployeeId).OnDelete(DeleteBehavior.Restrict);
-            entity.HasOne(c => c.EmailAccount).WithMany(ea => ea.Credentials).HasForeignKey(c => c.EmailAccountId).OnDelete(DeleteBehavior.Cascade);
-        });
-
-        builder.Entity<EmailAccount>(entity =>
-        {
-            entity.HasIndex(e => e.Email).IsUnique();
-            entity.HasOne(e => e.Employee).WithMany(emp => emp.EmailAccounts).HasForeignKey(e => e.EmployeeId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(a => a.Device).WithMany(d => d.Accesses).HasForeignKey(a => a.DeviceId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(a => a.Employee).WithMany(e => e.Accesses).HasForeignKey(a => a.EmployeeId).OnDelete(DeleteBehavior.Restrict);
         });
 
         builder.Entity<Maintenance>(entity =>

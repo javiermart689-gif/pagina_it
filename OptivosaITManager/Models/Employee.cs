@@ -39,8 +39,7 @@ public class Employee
     public DateTime? UpdatedAt { get; set; }
 
     public ICollection<DeviceAssignment> DeviceAssignments { get; set; } = new List<DeviceAssignment>();
-    public ICollection<EmailAccount> EmailAccounts { get; set; } = new List<EmailAccount>();
-    public ICollection<Credential> Credentials { get; set; } = new List<Credential>();
+    public ICollection<AccessCredential> Accesses { get; set; } = new List<AccessCredential>();
 
     public string FullName => $"{FirstName} {LastName}";
 }

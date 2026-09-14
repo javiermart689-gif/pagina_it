@@ -110,8 +110,8 @@ public class DevicesController : Controller
 
         if (device is null) return NotFound();
 
-        // El rol Jefe no tiene "Credenciales" entre sus permisos de consulta: ni siquiera se
-        // consultan esas credenciales, en vez de solo ocultarlas en la vista.
+        // El rol Jefe no tiene "Accesos" entre sus permisos de consulta: ni siquiera se
+        // consultan esos accesos, en vez de solo ocultarlos en la vista.
         var canViewCredentials = User.IsInRole(Roles.SistemasTI);
 
         var vm = new DeviceDetailViewModel
@@ -123,9 +123,9 @@ public class DevicesController : Controller
                 .Where(a => a.DeviceId == id)
                 .OrderByDescending(a => a.AssignedAt)
                 .ToListAsync(),
-            Credentials = canViewCredentials
-                ? await _context.Credentials.Where(c => c.DeviceId == id && c.IsActive).ToListAsync()
-                : new List<Credential>(),
+            Accesses = canViewCredentials
+                ? await _context.Accesses.Where(a => a.DeviceId == id && a.Status != AccessStatus.Baja).ToListAsync()
+                : new List<AccessCredential>(),
             CanViewCredentials = canViewCredentials,
             MaintenanceHistory = await _context.MaintenanceRecords
                 .Where(m => m.DeviceId == id)

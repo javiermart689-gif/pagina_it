@@ -1,0 +1,49 @@
+@model AccessListViewModel
+@{
+    ViewData["Title"] = "Accesos";
+    var tabs = new (AccessType? Value, string Label)[]
+    {
+        (null, "Todos"),
+        (AccessType.Correo, "Correo"),
+        (AccessType.Equipo, "Equipos"),
+        (AccessType.Sistema, "Sistemas"),
+        (AccessType.Aplicacion, "Aplicaciones"),
+        (AccessType.Vpn, "VPN"),
+        (AccessType.Servidor, "Servidores"),
+        (AccessType.Administrativa, "Administrativas"),
+        (AccessType.Otro, "Otros")
+    };
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">🔐 Accesos</h3>
+    @if (User.IsInRole(Roles.SistemasTI))
+    {
+        <a class="btn btn-primary" asp-action="Create">+ Nuevo acceso</a>
+    }
+</div>
+
+<ul class="nav nav-pills mb-3">
+    @foreach (var tab in tabs)
+    {
+        <li class="nav-item">
+            <a class="nav-link @(Model.TypeFilter == tab.Value ? "active" : "")"
+               asp-action="Index" asp-route-typeFilter="@tab.Value" asp-route-searchTerm="@Model.SearchTerm">@tab.Label</a>
+        </li>
+    }
+</ul>
+
+<form method="get" class="table-toolbar card-panel">
+    <input type="hidden" name="typeFilter" value="@Model.TypeFilter" />
+    <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control" style="max-width:320px"
+           placeholder="Nombre, usuario, servicio, empleado, equipo..." />
+    <button type="submit" class="btn btn-primary">Buscar</button>
+    <a asp-action="Index" class="btn btn-link">Limpiar</a>
+</form>
+
+<div class="card-panel">
+    <partial name="_AccessList" model="Model.Accesses" />
+    @if (!Model.Accesses.Any())
+    {
+        <p class="text-muted small mb-0">No hay accesos registrados.</p>
+    }
+</div>

@@ -20,12 +20,12 @@ public class SearchController : Controller
         ViewBag.Term = term;
         var results = await _searchService.SearchAsync(term ?? string.Empty);
 
-        // Las cuentas de correo (contraseñas cifradas de Microsoft 365) no están entre los
-        // permisos de consulta del rol Jefe: se quitan de los resultados en vez de mostrar
-        // enlaces que de todas formas darían acceso denegado en EmailAccountsController.
+        // Los accesos (contraseñas cifradas) no están entre los permisos de consulta del rol
+        // Jefe: se quitan de los resultados en vez de mostrar enlaces que de todas formas
+        // darían acceso denegado en AccessesController.
         if (!User.IsInRole(Roles.SistemasTI))
         {
-            results.Emails.Clear();
+            results.Accesses.Clear();
         }
 
         return View(results);

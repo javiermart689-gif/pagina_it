@@ -51,7 +51,7 @@ public class Device
     public DateTime? UpdatedAt { get; set; }
 
     public ICollection<DeviceAssignment> Assignments { get; set; } = new List<DeviceAssignment>();
-    public ICollection<Credential> Credentials { get; set; } = new List<Credential>();
+    public ICollection<AccessCredential> Accesses { get; set; } = new List<AccessCredential>();
     public ICollection<Maintenance> MaintenanceRecords { get; set; } = new List<Maintenance>();
 
     public DeviceAssignment? CurrentAssignment => Assignments

@@ -65,55 +65,26 @@ public class EmployeesController : Controller
 
         if (employee is null) return NotFound();
 
-        // El rol Jefe no tiene "Credenciales"/"Cuentas de correo" entre sus permisos de consulta
-        // (ver Security/Roles.cs): para ese caso ni siquiera se consultan esos datos, en vez de
-        // solo ocultarlos en la vista.
+        // El rol Jefe no tiene "Accesos" entre sus permisos de consulta (ver Security/Roles.cs):
+        // para ese caso ni siquiera se consultan esos datos, en vez de solo ocultarlos en la vista.
         var canViewCredentials = User.IsInRole(Roles.SistemasTI);
 
-        List<AssignedDeviceInfo> assignedDevicesInfo;
-        List<EmailAccount> emailAccounts = new();
-        List<Credential> dynamics365Credentials = new();
-        List<Credential> otherCredentials = new();
+        var assignedDevices = await _context.Devices
+            .Where(d => d.Assignments.Any(a => a.EmployeeId == id && a.ReturnedAt == null))
+            .ToListAsync();
+        var assignedDevicesInfo = assignedDevices
+            .Select(d => new AssignedDeviceInfo { Device = d })
+            .ToList();
 
-        if (canViewCredentials)
-        {
-            var assignedDevices = await _context.Devices
-                .Include(d => d.Credentials.Where(c => c.CredentialType == CredentialType.Equipo && c.IsActive))
-                .Where(d => d.Assignments.Any(a => a.EmployeeId == id && a.ReturnedAt == null))
-                .ToListAsync();
-
-            assignedDevicesInfo = assignedDevices
-                .Select(d => new AssignedDeviceInfo { Device = d, WindowsCredentials = d.Credentials.ToList() })
-                .ToList();
-            emailAccounts = await _context.EmailAccounts.Where(ea => ea.EmployeeId == id).ToListAsync();
-            dynamics365Credentials = await _context.Credentials
-                .Where(c => c.EmployeeId == id && c.CredentialType == CredentialType.Dynamics365 && c.IsActive)
-                .ToListAsync();
-            otherCredentials = await _context.Credentials
-                .Where(c => c.EmployeeId == id && c.IsActive
-                    && c.CredentialType != CredentialType.Equipo
-                    && c.CredentialType != CredentialType.Dynamics365)
-                .ToListAsync();
-        }
-        else
-        {
-            // El equipo asignado (sin credenciales) sí es información de "Consultar equipos"
-            // visible para Jefe.
-            var assignedDevices = await _context.Devices
-                .Where(d => d.Assignments.Any(a => a.EmployeeId == id && a.ReturnedAt == null))
-                .ToListAsync();
-            assignedDevicesInfo = assignedDevices
-                .Select(d => new AssignedDeviceInfo { Device = d, WindowsCredentials = new List<Credential>() })
-                .ToList();
-        }
+        List<AccessCredential> accesses = canViewCredentials
+            ? await _context.Accesses.Where(a => a.EmployeeId == id && a.Status != AccessStatus.Baja).ToListAsync()
+            : new List<AccessCredential>();
 
         var vm = new EmployeeDetailViewModel
         {
             Employee = employee,
             AssignedDevices = assignedDevicesInfo,
-            EmailAccounts = emailAccounts,
-            Dynamics365Credentials = dynamics365Credentials,
-            OtherCredentials = otherCredentials,
+            Accesses = accesses,
             CanViewCredentials = canViewCredentials
         };
 

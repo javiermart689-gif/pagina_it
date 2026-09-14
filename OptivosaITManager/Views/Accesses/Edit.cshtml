@@ -1,8 +1,8 @@
-@model EmailAccountFormViewModel
+@model AccessFormViewModel
 @{
-    ViewData["Title"] = "Editar cuenta de correo";
+    ViewData["Title"] = "Editar acceso";
 }
-<h3 class="mb-3">Editar cuenta de correo</h3>
+<h3 class="mb-3">Editar acceso</h3>
 <div class="card-panel">
     <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
         <input type="hidden" asp-for="Id" />
@@ -10,7 +10,11 @@
         <partial name="_Form" />
         <div class="mt-3">
             <button type="submit" class="btn btn-primary">Guardar cambios</button>
-            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancelar</a>
+            <form asp-action="Deactivate" asp-route-id="@Model.Id" method="post" class="d-inline"
+                  onsubmit="return confirm('¿Eliminar este acceso?');">
+                <button type="submit" class="btn btn-outline-danger">Eliminar</button>
+            </form>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
         </div>
     </form>
 </div>

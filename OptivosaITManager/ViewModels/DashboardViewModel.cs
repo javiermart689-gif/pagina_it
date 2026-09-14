@@ -8,7 +8,7 @@ public class DashboardViewModel
     public int MaintenanceDevices { get; set; }
     public int RetiredDevices { get; set; }
     public int TotalEmployees { get; set; }
-    public int TotalEmailAccounts { get; set; }
+    public int TotalAccesses { get; set; }
 
     public List<(string Label, int Count)> DevicesByStatus { get; set; } = new();
     public List<(string Label, int Count)> DevicesByType { get; set; } = new();

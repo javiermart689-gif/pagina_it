@@ -50,25 +50,19 @@ public class EmployeeDetailViewModel
 {
     public Employee Employee { get; set; } = null!;
 
-    /// <summary>Equipo(s) asignados actualmente, cada uno con sus credenciales de Windows (CredentialType.Equipo).</summary>
+    /// <summary>Equipo(s) asignados actualmente. Sus accesos propios (p. ej. Windows) se
+    /// consultan desde la ficha del equipo, no aquí, para no duplicar la misma información.</summary>
     public List<AssignedDeviceInfo> AssignedDevices { get; set; } = new();
 
-    /// <summary>Cuentas de correo / Microsoft 365 (incluye licencia).</summary>
-    public List<EmailAccount> EmailAccounts { get; set; } = new();
+    /// <summary>Todos los accesos (correo, sistemas, VPN, etc.) relacionados con este empleado.</summary>
+    public List<AccessCredential> Accesses { get; set; } = new();
 
-    /// <summary>Credenciales de Dynamics 365, independientes de las de Microsoft 365.</summary>
-    public List<Credential> Dynamics365Credentials { get; set; } = new();
-
-    /// <summary>Otros accesos extensibles: VPN, sistemas internos, aplicaciones, servicios, etc.</summary>
-    public List<Credential> OtherCredentials { get; set; } = new();
-
-    /// <summary>False para el rol Jefe: las listas de credenciales/cuentas de arriba vienen vacías
-    /// a propósito (ni siquiera se consultaron) y la vista debe mostrar un aviso, no "sin registros".</summary>
+    /// <summary>False para el rol Jefe: Accesses viene vacía a propósito (ni siquiera se
+    /// consultó) y la vista debe mostrar un aviso, no "sin registros".</summary>
     public bool CanViewCredentials { get; set; }
 }
 
 public class AssignedDeviceInfo
 {
     public Device Device { get; set; } = null!;
-    public List<Credential> WindowsCredentials { get; set; } = new();
 }

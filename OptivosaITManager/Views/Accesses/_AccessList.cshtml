@@ -1,0 +1,56 @@
+@model IEnumerable<AccessCredential>
+@{
+    var canManage = User.IsInRole(Roles.SistemasTI);
+}
+<form id="antiForgeryForm">@Html.AntiForgeryToken()</form>
+<table class="table table-sm align-middle">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Usuario</th>
+            <th>Relacionado con</th>
+            <th>Servicio</th>
+            <th>Estado</th>
+            <th>Contraseña</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var a in Model)
+        {
+            <tr>
+                <td>@a.Name</td>
+                <td>@a.Type</td>
+                <td>@a.Username</td>
+                <td>
+                    @if (a.Employee != null)
+                    {
+                        <a asp-controller="Employees" asp-action="Details" asp-route-id="@a.Employee.Id">@a.Employee.FirstName @a.Employee.LastName</a>
+                    }
+                    else if (a.Device != null)
+                    {
+                        <a asp-controller="Devices" asp-action="Details" asp-route-id="@a.Device.Id">@a.Device.InventoryNumber</a>
+                    }
+                    else
+                    {
+                        <span class="text-muted">-</span>
+                    }
+                </td>
+                <td>@(a.ServiceName ?? "-")</td>
+                <td><span class="badge @(a.Status == AccessStatus.Activo ? "bg-success text-white" : a.Status == AccessStatus.Suspendido ? "bg-warning text-dark" : "bg-secondary text-white")">@a.Status</span></td>
+                <td><span class="password-mask" data-password-slot="access-@a.Id">••••••••</span></td>
+                <td class="text-end text-nowrap">
+                    @if (canManage)
+                    {
+                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                data-reveal-url="/Accesses/RevealPassword/@a.Id" data-reveal-target="access-@a.Id">Mostrar</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                data-copy-url="/Accesses/CopyPassword/@a.Id">Copiar</button>
+                        <a class="btn btn-sm btn-outline-secondary" asp-controller="Accesses" asp-action="Edit" asp-route-id="@a.Id">Editar</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

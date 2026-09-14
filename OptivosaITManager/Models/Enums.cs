@@ -33,33 +33,27 @@ public enum EmployeeStatus
     Inactivo
 }
 
-public enum CredentialType
+// Módulo unificado "Accesos" (reemplaza los antiguos módulos separados Credenciales y
+// Cuentas de correo: una cuenta de correo es simplemente un acceso de tipo Correo, no una
+// entidad aparte). El orden de los valores define el orden de las pestañas de filtro en la
+// pantalla de Accesos; para agregar un tipo nuevo, añadirlo al final para no alterar los
+// valores numéricos ya guardados en la BD.
+public enum AccessType
 {
-    Equipo,
     Correo,
+    Equipo,
     Sistema,
     Aplicacion,
-    Servicio,
-    Administrador,
-    Otro,
-    // Agregados para la ficha unificada Persona -> Equipo -> Cuentas. Los valores nuevos
-    // se añaden al final para no alterar los valores numéricos ya guardados en la BD.
-    Dynamics365,
-    Vpn
-}
-
-public enum EmailAccountType
-{
-    Corporativo,
-    Compartido,
-    Distribucion,
+    Vpn,
+    Servidor,
+    Administrativa,
     Otro
 }
 
-public enum EmailAccountStatus
+public enum AccessStatus
 {
-    Activa,
-    Suspendida,
+    Activo,
+    Suspendido,
     Baja
 }
 

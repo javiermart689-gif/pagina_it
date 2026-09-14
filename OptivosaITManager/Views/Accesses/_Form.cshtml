@@ -1,0 +1,85 @@
+@model AccessFormViewModel
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Type" class="form-label"></label>
+        <select asp-for="Type" id="accessTypeSelect" class="form-select" asp-items="Html.GetEnumSelectList<AccessType>()"></select>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="Username" class="form-label"></label>
+        <input asp-for="Username" class="form-control" />
+        <span asp-validation-for="Username" class="text-danger small"></span>
+    </div>
+    <div class="col-md-6">
+        <label asp-for="Password" class="form-label"></label>
+        <input asp-for="Password" class="form-control" autocomplete="new-password" />
+        <span asp-validation-for="Password" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-6" data-access-field="employee">
+        <label asp-for="EmployeeId" class="form-label"></label>
+        <select asp-for="EmployeeId" class="form-select" asp-items="@(new SelectList(Model.Employees, "Id", "FullName"))">
+            <option value="">-- Sin asignar --</option>
+        </select>
+    </div>
+    <div class="col-md-6" data-access-field="device">
+        <label asp-for="DeviceId" class="form-label"></label>
+        <select asp-for="DeviceId" class="form-select" asp-items="@(new SelectList(Model.Devices, "Id", "InventoryNumber"))">
+            <option value="">-- Sin asignar --</option>
+        </select>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="ServiceName" class="form-label"></label>
+        <input asp-for="ServiceName" class="form-control" placeholder="Ej. Microsoft 365, ERP, Windows" />
+    </div>
+    <div class="col-md-4" data-access-field="license">
+        <label asp-for="License" class="form-label"></label>
+        <input asp-for="License" class="form-control" placeholder="Ej. Microsoft 365 Business Premium" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Status" class="form-label"></label>
+        <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<AccessStatus>()"></select>
+    </div>
+
+    <div class="col-12">
+        <label asp-for="Notes" class="form-label"></label>
+        <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+    </div>
+</div>
+
+<script>
+    // Los campos de relación (empleado/equipo) y de licencia son opcionales según el tipo de
+    // acceso elegido (ver especificación del módulo Accesos): Correo se relaciona con un
+    // empleado, Equipo con un equipo, el resto puede combinarse libremente. Esto es solo una
+    // ayuda visual en el formulario: el modelo permite ambos campos opcionales siempre, así que
+    // ocultar un campo no borra su valor si ya tenía uno (por si el usuario cambia de tipo y
+    // regresa).
+    (function () {
+        var typeSelect = document.getElementById('accessTypeSelect');
+        if (!typeSelect) return;
+
+        var employeeField = document.querySelector('[data-access-field="employee"]');
+        var deviceField = document.querySelector('[data-access-field="device"]');
+        var licenseField = document.querySelector('[data-access-field="license"]');
+
+        function apply() {
+            // Html.GetEnumSelectList usa el valor numérico del enum como "value" del <option>;
+            // se compara por el texto (nombre del enum) en vez del número para no depender del
+            // orden en que estén declarados los valores de AccessType.
+            var type = typeSelect.options[typeSelect.selectedIndex].text;
+            if (deviceField) deviceField.hidden = (type === 'Correo' || type === 'Vpn');
+            if (employeeField) employeeField.hidden = (type === 'Equipo');
+            if (licenseField) licenseField.hidden = (type !== 'Correo');
+        }
+
+        typeSelect.addEventListener('change', apply);
+        apply();
+    })();
+</script>
