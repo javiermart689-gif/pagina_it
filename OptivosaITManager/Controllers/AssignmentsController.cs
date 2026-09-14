@@ -187,4 +187,41 @@ public class AssignmentsController : Controller
         TempData["SuccessMessage"] = "Equipo reasignado correctamente.";
         return RedirectToAction("Details", "Devices", new { id = device.Id });
     }
+
+    // "Devolver equipo": el usuario que lo tenía asignado lo entrega y el equipo queda
+    // Disponible para asignarse a otra persona más adelante. A diferencia de Reasignar, aquí
+    // no se crea una nueva asignación — solo se cierra la actual.
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = Roles.PuedeEditar)]
+    public async Task<IActionResult> Return(int deviceId)
+    {
+        var device = await _context.Devices
+            .Include(d => d.Assignments)
+            .FirstOrDefaultAsync(d => d.Id == deviceId);
+        if (device is null) return NotFound();
+
+        var current = device.CurrentAssignment;
+        if (current is null)
+        {
+            TempData["ErrorMessage"] = "Este equipo no tiene una asignación activa que devolver.";
+            return RedirectToAction("Details", "Devices", new { id = deviceId });
+        }
+
+        // 1. Cerrar la asignación activa y registrar quién hizo la devolución.
+        current.ReturnedAt = DateTime.UtcNow;
+        current.ReturnedByUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        // 2. El equipo queda disponible para una futura asignación (no se crea uno nuevo).
+        device.Status = DeviceStatus.Disponible;
+        device.UpdatedAt = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        await _auditService.LogAsync(AuditActions.DevolverEquipo, nameof(Device), device.Id.ToString(),
+            $"Equipo {device.InventoryNumber} devuelto por empleado #{current.EmployeeId}.");
+
+        TempData["SuccessMessage"] = "Devolución registrada. El equipo quedó disponible.";
+        return RedirectToAction("Details", "Devices", new { id = device.Id });
+    }
 }

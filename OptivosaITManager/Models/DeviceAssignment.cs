@@ -17,6 +17,10 @@ public class DeviceAssignment
 
     public string? AssignedByUserId { get; set; }
 
+    // Quién registró la devolución del equipo (acción "Devolver equipo", distinta de
+    // "Reasignar": aquí no se crea una asignación nueva, solo se cierra esta).
+    public string? ReturnedByUserId { get; set; }
+
     [StringLength(500)]
     public string? Notes { get; set; }
 }

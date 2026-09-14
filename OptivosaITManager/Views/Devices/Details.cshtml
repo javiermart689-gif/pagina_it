@@ -4,6 +4,8 @@
     ViewData["Title"] = $"{device.InventoryNumber}";
     var current = Model.AssignmentHistory.FirstOrDefault(a => a.ReturnedAt == null);
     var canEdit = User.IsInRole(Roles.SistemasTI);
+    var isBaja = device.Status == DeviceStatus.Baja;
+    var openMaintenance = Model.MaintenanceHistory.FirstOrDefault(m => m.CompletedAt == null);
 }
 <div class="d-flex justify-content-between align-items-start mb-3">
     <div>
@@ -11,20 +13,21 @@
         <div class="text-muted">Inventario: @device.InventoryNumber &middot; Serie: @device.SerialNumber &middot; Hostname: @device.ComputerName</div>
     </div>
     <div>
-        @if (canEdit)
+        @if (canEdit && !isBaja)
         {
-            <a class="btn btn-outline-secondary" asp-action="Receive" asp-route-id="@device.Id">Recibir equipo</a>
             <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@device.Id">Editar</a>
-            @if (device.Status != DeviceStatus.Baja)
-            {
-                <form asp-action="Deactivate" asp-route-id="@device.Id" method="post" class="d-inline"
-                      onsubmit="return confirm('¿Confirma dar de baja este equipo?');">
-                    <button type="submit" class="btn btn-outline-danger">Dar de baja</button>
-                </form>
-            }
+            <form asp-action="Deactivate" asp-route-id="@device.Id" method="post" class="d-inline"
+                  onsubmit="return confirm('¿Confirma dar de baja este equipo?');">
+                <button type="submit" class="btn btn-outline-danger">Dar de baja</button>
+            </form>
         }
     </div>
 </div>
+
+@if (isBaja)
+{
+    <div class="alert alert-secondary">Este equipo está dado de baja. Solo puede consultarse su información e historial.</div>
+}
 
 <div class="row g-3 mb-3">
     <div class="col-md-6">
@@ -49,18 +52,35 @@
                 <p class="mb-1 text-muted">@current.Employee.Department?.Name &middot; @(current.Employee.Location?.Name ?? "Sin sucursal")</p>
                 <p class="mb-1 text-muted">Tel. @(current.Employee.Phone ?? "-")</p>
                 <p class="mb-2 text-muted small">Asignado desde @current.AssignedAt.ToLocalTime().ToString("dd/MM/yyyy")</p>
-                @if (canEdit)
+                @if (canEdit && device.Status == DeviceStatus.Asignado)
                 {
-                    <a class="btn btn-sm btn-primary" asp-controller="Assignments" asp-action="Reassign" asp-route-deviceId="@device.Id">Reasignar</a>
+                    <a class="btn btn-sm btn-primary" asp-controller="Assignments" asp-action="Reassign" asp-route-deviceId="@device.Id">Reasignar equipo</a>
+                    <form asp-controller="Assignments" asp-action="Return" asp-route-deviceId="@device.Id" method="post" class="d-inline"
+                          onsubmit="return confirm('¿Confirma la devolución de este equipo? Quedará disponible para asignarse a otra persona.');">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Devolver equipo</button>
+                    </form>
                 }
             }
             else
             {
                 <p class="text-muted mb-2">Este equipo no tiene un usuario asignado actualmente.</p>
-                @if (canEdit)
+                @if (canEdit && device.Status == DeviceStatus.Disponible)
                 {
                     <a class="btn btn-sm btn-primary" asp-controller="Assignments" asp-action="Assign" asp-route-deviceId="@device.Id">Asignar equipo</a>
                 }
+            }
+            @if (canEdit && device.Status == DeviceStatus.Mantenimiento)
+            {
+                <div class="mt-2">
+                    @if (openMaintenance is not null)
+                    {
+                        <a class="btn btn-sm btn-primary" asp-controller="Maintenance" asp-action="Edit" asp-route-id="@openMaintenance.Id">Finalizar mantenimiento</a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-sm btn-primary" asp-controller="Maintenance" asp-action="Create" asp-route-deviceId="@device.Id">Registrar mantenimiento</a>
+                    }
+                </div>
             }
         </div>
     </div>
@@ -71,7 +91,7 @@
     @if (device.QrToken is null)
     {
         <p class="text-muted small mb-2">Este equipo todavía no tiene un código QR. El QR identifica al equipo de forma permanente: seguirá funcionando aunque se reasigne a otra persona.</p>
-        @if (canEdit)
+        @if (canEdit && !isBaja)
         {
             <form asp-action="GenerateQr" asp-route-id="@device.Id" method="post">
                 <button type="submit" class="btn btn-primary">Generar QR</button>
@@ -93,7 +113,7 @@
 <div class="card-panel mb-3">
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h6 class="mb-0">Credenciales relacionadas</h6>
-        @if (User.IsInRole(Roles.SistemasTI))
+        @if (canEdit && !isBaja)
         {
             <a class="btn btn-sm btn-outline-primary" asp-controller="Credentials" asp-action="Create" asp-route-deviceId="@device.Id">Agregar credencial</a>
         }
@@ -141,7 +161,7 @@
 <div class="card-panel">
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h6 class="mb-0">Historial de mantenimiento</h6>
-        @if (User.IsInRole(Roles.SistemasTI))
+        @if (canEdit && !isBaja && device.Status != DeviceStatus.Mantenimiento)
         {
             <a class="btn btn-sm btn-outline-primary" asp-controller="Maintenance" asp-action="Create" asp-route-deviceId="@device.Id">Registrar mantenimiento</a>
         }

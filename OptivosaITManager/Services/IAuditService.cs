@@ -23,7 +23,7 @@ public static class AuditActions
     public const string ImportarExcel = "ImportarExcel";
     public const string GenerarQR = "GenerarQR";
     public const string EscanearQR = "EscanearQR";
-    public const string RecibirEquipo = "RecibirEquipo";
+    public const string DevolverEquipo = "DevolverEquipo";
     public const string CrearServicioTelecom = "CrearServicioTelecom";
     public const string ModificarServicioTelecom = "ModificarServicioTelecom";
     public const string ActivarServicioTelecom = "ActivarServicioTelecom";

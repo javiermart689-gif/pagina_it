@@ -1,0 +1,85 @@
+@model DeviceFindOrRegisterViewModel
+@{
+    ViewData["Title"] = "Registrar / Recibir equipo";
+}
+<h3 class="mb-1">Registrar / Recibir equipo</h3>
+<p class="text-muted small mb-3">
+    Escanee el código QR del equipo con la cámara o introduzca su número de serie o de
+    inventario. Si el equipo ya está registrado, se abre su ficha directamente — nunca se crea
+    un duplicado.
+</p>
+
+<div class="card-panel mb-3">
+    <h6 class="mb-2">Escanear código QR</h6>
+    <div id="qrScannerRoot" data-scan-target-prefix="@Url.Content("~/q/")">
+        <div class="qr-scanner-video-wrap mb-2" hidden>
+            <video id="qrScannerVideo" playsinline muted></video>
+        </div>
+        <p id="qrScannerStatus" class="text-muted small mb-2">La cámara se activa al presionar "Activar cámara". Necesita una conexión segura (HTTPS) y permiso de cámara.</p>
+        <button type="button" id="qrScannerStart" class="btn btn-outline-primary btn-sm">Activar cámara</button>
+        <button type="button" id="qrScannerStop" class="btn btn-outline-secondary btn-sm" hidden>Detener cámara</button>
+    </div>
+</div>
+
+<form method="get" class="table-toolbar card-panel mb-3">
+    <input type="text" name="searchTerm" value="@Model.SearchTerm" class="form-control" style="max-width:320px"
+           placeholder="Número de inventario o de serie" autofocus />
+    <button type="submit" class="btn btn-primary">Buscar</button>
+</form>
+
+@if (Model.Device is not null)
+{
+    var device = Model.Device;
+    <div class="alert alert-info">Este equipo ya está registrado.</div>
+    <div class="card-panel mb-3">
+        <div class="row g-2">
+            <div class="col-md-3"><strong>Equipo:</strong> @device.Brand @device.Model</div>
+            <div class="col-md-3"><strong>N.º inventario:</strong> @device.InventoryNumber</div>
+            <div class="col-md-3"><strong>N.º de serie:</strong> @(device.SerialNumber ?? "-")</div>
+            <div class="col-md-3"><strong>Estado:</strong> <span class="badge bg-primary text-white">@device.Status</span></div>
+        </div>
+        <div class="row g-2 mt-1">
+            <div class="col-md-6">
+                <strong>Usuario actual:</strong>
+                @if (Model.CurrentAssignment != null)
+                {
+                    <a asp-controller="Employees" asp-action="Details" asp-route-id="@Model.CurrentAssignment.Employee.Id">
+                        @Model.CurrentAssignment.Employee.FirstName @Model.CurrentAssignment.Employee.LastName
+                    </a>
+                }
+                else
+                {
+                    <span class="text-muted">Sin usuario asignado</span>
+                }
+            </div>
+            <div class="col-md-6"><strong>Ubicación:</strong> @(device.Location?.Name ?? "-")</div>
+        </div>
+        <div class="mt-3">
+            <a class="btn btn-primary" asp-action="Details" asp-route-id="@device.Id">Abrir equipo</a>
+        </div>
+    </div>
+}
+else if (Model.NotFound)
+{
+    <div class="alert alert-warning">Equipo no encontrado. Puede registrarse como equipo nuevo.</div>
+    <div class="card-panel">
+        <h6 class="mb-3">Registrar equipo nuevo</h6>
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <partial name="_Form" model="Model.RegisterForm" />
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">Guardar y generar QR</button>
+                <a asp-action="FindOrRegister" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+}
+
+@section Scripts {
+    @if (Model.NotFound)
+    {
+        <partial name="_ValidationScriptsPartial" />
+    }
+    <script src="~/lib/jsqr/dist/jsQR.js"></script>
+    <script src="~/js/qr-scanner.js" asp-append-version="true"></script>
+}

@@ -184,9 +184,9 @@ public class DevicesController : Controller
     }
 
     [Authorize(Roles = Roles.PuedeEditar)]
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> Create(string? serialNumber)
     {
-        return View(await BuildFormViewModelAsync(new DeviceFormViewModel()));
+        return View(await BuildFormViewModelAsync(new DeviceFormViewModel { SerialNumber = serialNumber }));
     }
 
     [HttpPost]
@@ -219,6 +219,9 @@ public class DevicesController : Controller
             PurchaseDate = input.PurchaseDate,
             WarrantyExpirationDate = input.WarrantyExpirationDate,
             Notes = input.Notes,
+            // Todo equipo nuevo recibe su identificador de QR desde el alta: así queda listo
+            // para imprimir la etiqueta de inmediato, sin depender de un paso manual aparte.
+            QrToken = Guid.NewGuid().ToString("N"),
             CreatedAt = DateTime.UtcNow
         };
 
@@ -226,7 +229,7 @@ public class DevicesController : Controller
         await _context.SaveChangesAsync();
         await _auditService.LogAsync(AuditActions.CrearEquipo, nameof(Device), device.Id.ToString(), $"Inventario {device.InventoryNumber}");
 
-        TempData["SuccessMessage"] = "Equipo creado correctamente.";
+        TempData["SuccessMessage"] = "Equipo registrado correctamente. Ya puede descargar/imprimir su código QR.";
         return RedirectToAction(nameof(Details), new { id = device.Id });
     }
 
@@ -317,79 +320,44 @@ public class DevicesController : Controller
     }
 
     /// <summary>
-    /// Recepción física de un equipo: buscarlo (por inventario, serie o escaneando su QR)
-    /// y actualizar su estado, independientemente de si sigue asignado a alguien o no.
-    /// No modifica la asignación actual; para reasignar el equipo se usa el módulo de
-    /// Asignaciones.
+    /// Pantalla única "Registrar / Recibir equipo" (también expuesta como "Escanear QR" en la
+    /// navegación): busca un equipo por inventario o serie. Si ya existe, NO permite crear un
+    /// duplicado — solo ofrece abrir su ficha. Si no existe, ofrece darlo de alta (mismo
+    /// formulario que "Nuevo equipo", con el número de serie ya capturado). El QR físico de un
+    /// equipo ya registrado se resuelve directamente vía /q/{token} (QrController), sin pasar
+    /// por aquí; esta pantalla es para cuando aún no hay QR que escanear (equipo nuevo) o el
+    /// técnico prefiere teclear el dato manualmente.
     /// </summary>
     [Authorize(Roles = Roles.PuedeEditar)]
-    public async Task<IActionResult> Receive(int? id, string? searchTerm)
+    public async Task<IActionResult> FindOrRegister(string? searchTerm)
     {
-        var vm = new DeviceReceiveViewModel { SearchTerm = searchTerm };
+        var vm = new DeviceFindOrRegisterViewModel { SearchTerm = searchTerm };
 
-        Device? device = null;
-        if (id.HasValue)
-        {
-            device = await _context.Devices
-                .Include(d => d.Department)
-                .Include(d => d.Location)
-                .FirstOrDefaultAsync(d => d.Id == id);
-        }
-        else if (!string.IsNullOrWhiteSpace(searchTerm))
+        if (!string.IsNullOrWhiteSpace(searchTerm))
         {
             var term = searchTerm.Trim();
-            device = await _context.Devices
+            var device = await _context.Devices
                 .Include(d => d.Department)
                 .Include(d => d.Location)
-                .FirstOrDefaultAsync(d =>
-                    d.InventoryNumber == term ||
-                    (d.SerialNumber != null && d.SerialNumber == term) ||
-                    EF.Functions.Like(d.InventoryNumber, $"%{term}%"));
+                .FirstOrDefaultAsync(d => d.InventoryNumber == term || d.SerialNumber == term);
 
-            if (device is null)
+            if (device is not null)
             {
-                TempData["ErrorMessage"] = "No se encontró ningún equipo con ese número de inventario o serie.";
+                vm.Device = device;
+                vm.CurrentAssignment = await _context.DeviceAssignments
+                    .Include(a => a.Employee).ThenInclude(e => e.Department)
+                    .Include(a => a.Employee).ThenInclude(e => e.Location)
+                    .Where(a => a.DeviceId == device.Id && a.ReturnedAt == null)
+                    .FirstOrDefaultAsync();
+            }
+            else
+            {
+                vm.NotFound = true;
+                vm.RegisterForm = await BuildFormViewModelAsync(new DeviceFormViewModel { SerialNumber = term });
             }
         }
 
-        if (device is not null)
-        {
-            vm.Device = device;
-            vm.NewStatus = device.Status;
-            vm.CurrentAssignment = await _context.DeviceAssignments
-                .Include(a => a.Employee).ThenInclude(e => e.Department)
-                .Include(a => a.Employee).ThenInclude(e => e.Location)
-                .Where(a => a.DeviceId == device.Id && a.ReturnedAt == null)
-                .FirstOrDefaultAsync();
-        }
-
         return View(vm);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Roles = Roles.PuedeEditar)]
-    public async Task<IActionResult> ReceiveConfirm(int deviceId, DeviceStatus newStatus, string? notes)
-    {
-        if (!DeviceReceiveViewModel.AllowedStatuses.Contains(newStatus))
-        {
-            return BadRequest();
-        }
-
-        var device = await _context.Devices.FindAsync(deviceId);
-        if (device is null) return NotFound();
-
-        var previousStatus = device.Status;
-        device.Status = newStatus;
-        device.UpdatedAt = DateTime.UtcNow;
-        await _context.SaveChangesAsync();
-
-        await _auditService.LogAsync(AuditActions.RecibirEquipo, nameof(Device), device.Id.ToString(),
-            $"Equipo {device.InventoryNumber} recibido: {previousStatus} -> {newStatus}." +
-            (string.IsNullOrWhiteSpace(notes) ? "" : $" Notas: {notes}"));
-
-        TempData["SuccessMessage"] = $"Equipo {device.InventoryNumber} actualizado a estado '{newStatus}'.";
-        return RedirectToAction(nameof(Details), new { id = deviceId });
     }
 
     [Authorize(Roles = Roles.PuedeEditar)]

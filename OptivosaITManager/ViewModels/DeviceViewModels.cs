@@ -112,26 +112,22 @@ public class DeviceLabelViewModel
     public string QrSvg { get; set; } = string.Empty;
 }
 
-public class DeviceReceiveViewModel
+/// <summary>
+/// Pantalla única "Registrar / Recibir equipo" (también accesible como "Escanear QR"): busca un
+/// equipo por número de inventario o de serie (o llega ya identificado tras escanear su QR). Si
+/// existe, solo permite abrir su ficha — nunca crea un duplicado. Si no existe, ofrece darlo de
+/// alta con el mismo formulario que "Nuevo equipo", con el número de serie ya capturado.
+/// </summary>
+public class DeviceFindOrRegisterViewModel
 {
     public string? SearchTerm { get; set; }
 
     public Device? Device { get; set; }
     public DeviceAssignment? CurrentAssignment { get; set; }
 
-    [Display(Name = "Nuevo estado")]
-    public DeviceStatus NewStatus { get; set; }
+    /// <summary>True cuando ya se buscó (SearchTerm no vacío) y no se encontró ningún equipo.</summary>
+    public bool NotFound { get; set; }
 
-    [StringLength(500)]
-    public string? Notes { get; set; }
-
-    /// <summary>Estados permitidos específicamente en el flujo de recepción física de equipos.</summary>
-    public static readonly DeviceStatus[] AllowedStatuses =
-    {
-        DeviceStatus.Asignado,
-        DeviceStatus.EnRevision,
-        DeviceStatus.EnReparacion,
-        DeviceStatus.EnAlmacen,
-        DeviceStatus.Baja
-    };
+    /// <summary>Formulario de alta, prellenado con el número de serie buscado, mostrado solo cuando NotFound es true.</summary>
+    public DeviceFormViewModel? RegisterForm { get; set; }
 }

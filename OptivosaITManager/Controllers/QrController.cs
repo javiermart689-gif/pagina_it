@@ -29,7 +29,11 @@ public class QrController : Controller
     public async Task<IActionResult> Scan(string token)
     {
         var device = await _context.Devices.AsNoTracking().FirstOrDefaultAsync(d => d.QrToken == token);
-        if (device is null) return NotFound();
+        if (device is null)
+        {
+            TempData["ErrorMessage"] = "Este código QR no corresponde a ningún equipo registrado. Puede registrarlo como equipo nuevo.";
+            return RedirectToAction("FindOrRegister", "Devices");
+        }
 
         await _auditService.LogAsync(AuditActions.EscanearQR, nameof(Device), device.Id.ToString(),
             $"QR escaneado para el equipo {device.InventoryNumber}.");
