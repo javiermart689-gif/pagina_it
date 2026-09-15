@@ -1,16 +1,35 @@
 @{
-    ViewData["Title"] = "Importar equipos desde Excel";
+    ViewData["Title"] = "Importar inventario desde Excel";
 }
-<h3 class="mb-3">Importar equipos desde Excel</h3>
-<div class="card-panel" style="max-width:600px">
+<h3 class="mb-3">Importar inventario desde Excel</h3>
+<div class="card-panel" style="max-width:700px">
     <p class="text-muted">
-        El archivo <code>.xlsx</code> debe incluir al menos las columnas <code>InventoryNumber</code>, <code>DeviceType</code> y
-        <code>Status</code>. Columnas opcionales: <code>Brand</code>, <code>Model</code>, <code>SerialNumber</code>,
-        <code>ComputerName</code>, <code>OperatingSystem</code>, <code>Notes</code>.
+        Una misma fila puede describir un <strong>equipo</strong>, la <strong>persona</strong> a la
+        que está asignado y su <strong>correo</strong>; el sistema detecta y crea las relaciones
+        automáticamente (equipo, usuario, asignación y acceso), sin duplicar información existente.
+        Antes de guardar nada se muestra una vista previa para revisar los cambios.
+    </p>
+    <p class="text-muted small">
+        Columnas reconocidas (no todas son obligatorias): número de inventario, número de serie,
+        nombre del equipo, tipo, marca, modelo, sistema operativo, estado; nombre o nombre completo
+        del usuario, correo, número de empleado, departamento, puesto, ubicación, teléfono. Si el
+        equipo no trae número de empleado, el sistema le asigna uno automáticamente.
     </p>
     <form asp-action="ImportPreview" method="post" enctype="multipart/form-data">
         <div class="mb-3">
             <input type="file" name="file" class="form-control" accept=".xlsx" required />
+        </div>
+        <div class="form-check mb-3">
+            <input type="checkbox" name="importPasswords" value="true" class="form-check-input" id="importPasswords" />
+            <label class="form-check-label" for="importPasswords">
+                Importar contraseñas si el archivo las contiene
+            </label>
+            <p class="text-muted small mb-0">
+                Si no se marca, el sistema nunca leerá una columna de contraseñas aunque exista en
+                el archivo: los accesos se crean sin contraseña registrada. Las contraseñas
+                importadas se cifran igual que las capturadas manualmente en Accesos y nunca se
+                muestran en la vista previa.
+            </p>
         </div>
         <button type="submit" class="btn btn-primary">Validar archivo</button>
         <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>

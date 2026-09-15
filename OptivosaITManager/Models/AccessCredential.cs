@@ -25,8 +25,11 @@ public class AccessCredential
     // Contraseña cifrada (AES) con una clave que nunca vive en el código fuente (ver
     // EncryptionOptions / IEncryptionService). Nunca se expone en texto plano fuera de ese
     // servicio, nunca se registra en auditoría ni en logs.
-    [Required]
-    public string EncryptedPassword { get; set; } = string.Empty;
+    // Nullable: un acceso puede registrarse sin contraseña conocida (p. ej. importado desde
+    // Excel cuando IT decide no traer contraseñas, o una cuenta de la que solo se conoce el
+    // usuario). La ficha debe mostrar "Sin contraseña registrada" en ese caso, y Mostrar/Copiar
+    // deben deshabilitarse en vez de intentar desencriptar un valor inexistente.
+    public string? EncryptedPassword { get; set; }
 
     public int? EmployeeId { get; set; }
     public Employee? Employee { get; set; }

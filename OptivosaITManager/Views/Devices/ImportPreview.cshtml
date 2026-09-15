@@ -2,61 +2,170 @@
 @{
     ViewData["Title"] = "Vista previa de importación";
 }
-<h3 class="mb-3">Vista previa de importación</h3>
+<h3 class="mb-1">Importación de inventario</h3>
+<p class="text-muted mb-3">Archivo: <strong>@Model.FileName</strong> &middot; @Model.TotalRows filas analizadas</p>
+
+@if (Model.PasswordColumnDetected)
+{
+    <div class="alert @(Model.ImportPasswords ? "alert-warning" : "alert-secondary")">
+        <strong>⚠ El archivo contiene información sensible.</strong>
+        Se detectó una columna de contraseñas.
+        @if (Model.ImportPasswords)
+        {
+            <text>Se importarán y se guardarán cifradas (nunca se muestran aquí).</text>
+        }
+        else
+        {
+            <text>No se importarán porque no marcó la casilla correspondiente al subir el archivo; los accesos se crearán sin contraseña.</text>
+        }
+    </div>
+}
 
 <div class="row g-3 mb-3">
-    <div class="col-6 col-md-3">
-        <div class="stat-card"><div class="stat-value">@Model.TotalRows</div><div class="stat-label">Registros encontrados</div></div>
+    <div class="col-md-3">
+        <div class="card-panel h-100">
+            <h6 class="mb-2">Equipos</h6>
+            <p class="mb-1">Nuevos: <strong class="text-success">@Model.DevicesNew</strong></p>
+            <p class="mb-1">Existentes: <strong>@Model.DevicesExisting</strong></p>
+            <p class="mb-0">Cambios: <strong class="text-warning">@Model.DevicesChanged</strong></p>
+        </div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-card"><div class="stat-value text-success">@Model.ValidCount</div><div class="stat-label">Válidos</div></div>
+    <div class="col-md-3">
+        <div class="card-panel h-100">
+            <h6 class="mb-2">Usuarios</h6>
+            <p class="mb-1">Nuevos: <strong class="text-success">@Model.EmployeesNew</strong></p>
+            <p class="mb-1">Existentes: <strong>@Model.EmployeesExisting</strong></p>
+            <p class="mb-0">Cambios: <strong class="text-warning">@Model.EmployeesChanged</strong></p>
+        </div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-card"><div class="stat-value text-warning">@Model.DuplicateCount</div><div class="stat-label">Duplicados</div></div>
+    <div class="col-md-3">
+        <div class="card-panel h-100">
+            <h6 class="mb-2">Asignaciones</h6>
+            <p class="mb-1">Nuevas: <strong class="text-success">@Model.AssignmentsNew</strong></p>
+            <p class="mb-0">Reasignaciones: <strong class="text-warning">@Model.AssignmentsReassigned</strong></p>
+        </div>
     </div>
-    <div class="col-6 col-md-3">
-        <div class="stat-card"><div class="stat-value text-danger">@Model.ErrorCount</div><div class="stat-label">Errores / Incompletos: @Model.IncompleteCount</div></div>
+    <div class="col-md-3">
+        <div class="card-panel h-100">
+            <h6 class="mb-2">Accesos</h6>
+            <p class="mb-1">Nuevos: <strong class="text-success">@Model.AccessesNew</strong></p>
+            <p class="mb-1">Existentes: <strong>@Model.AccessesExisting</strong></p>
+            <p class="mb-0">Cambios: <strong class="text-warning">@Model.AccessesChanged</strong></p>
+        </div>
     </div>
 </div>
+
+@if (Model.ErrorCount > 0 || Model.DuplicateCount > 0)
+{
+    <div class="card-panel mb-3">
+        <h6 class="mb-2">Errores y duplicados</h6>
+        @if (Model.ErrorCount > 0)
+        {
+            <p class="mb-1"><strong>@Model.ErrorCount</strong> fila(s) con error (no se procesarán):</p>
+            <ul class="small text-danger">
+                @foreach (var err in Model.RowErrors)
+                {
+                    <li>@err</li>
+                }
+            </ul>
+        }
+        @if (Model.DuplicateCount > 0)
+        {
+            <p class="mb-1">⚠ Posibles duplicados dentro del archivo:</p>
+            <ul class="small text-warning">
+                @foreach (var dup in Model.Duplicates)
+                {
+                    <li>@dup.IdentifierLabel <strong>@dup.Value</strong> — filas @string.Join(" y ", dup.RowNumbers)</li>
+                }
+            </ul>
+        }
+    </div>
+}
 
 <div class="card-panel mb-3">
-    <table class="table table-sm">
-        <thead><tr><th>Fila</th><th>Inventario</th><th>Equipo</th><th>Estado</th><th>Mensaje</th></tr></thead>
-        <tbody>
-            @foreach (var row in Model.Rows)
-            {
-                <tr>
-                    <td>@row.RowNumber</td>
-                    <td>@row.InventoryNumber</td>
-                    <td>@row.ComputerName</td>
-                    <td>
-                        @{
-                            var badge = row.Status switch
-                            {
-                                ImportRowStatus.Valido => "bg-success text-white",
-                                ImportRowStatus.Duplicado => "bg-warning text-dark",
-                                ImportRowStatus.Incompleto => "bg-secondary text-white",
-                                _ => "bg-danger text-white"
-                            };
-                        }
-                        <span class="badge @badge">@row.Status</span>
-                    </td>
-                    <td>@row.Message</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <h6 class="mb-2">Revisar detalles</h6>
+    @if (Model.DevicesChanged == 0 && Model.EmployeesChanged == 0 && Model.AssignmentsReassigned == 0)
+    {
+        <p class="text-muted small mb-0">No hay cambios sobre información existente que revisar; todo lo demás son altas nuevas.</p>
+    }
+    else
+    {
+        @if (Model.Assignments.Any(a => a.Action == AssignmentPlanAction.Reasignacion))
+        {
+            <p class="fw-semibold mb-1">Reasignaciones</p>
+            <table class="table table-sm">
+                <thead><tr><th>Fila</th><th>Equipo</th><th>Usuario anterior</th><th>Usuario nuevo</th></tr></thead>
+                <tbody>
+                    @foreach (var a in Model.Assignments.Where(a => a.Action == AssignmentPlanAction.Reasignacion))
+                    {
+                        <tr>
+                            <td>@a.RowNumber</td>
+                            <td>@a.InventoryNumber</td>
+                            <td>@a.PreviousEmployeeDisplayName</td>
+                            <td>@a.EmployeeDisplayName</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        @if (Model.Devices.Any(d => d.Action == ImportEntityAction.Actualizar))
+        {
+            <p class="fw-semibold mb-1 mt-2">Equipos con cambios</p>
+            <table class="table table-sm">
+                <thead><tr><th>Fila</th><th>Inventario</th><th>Cambios</th></tr></thead>
+                <tbody>
+                    @foreach (var d in Model.Devices.Where(d => d.Action == ImportEntityAction.Actualizar))
+                    {
+                        <tr>
+                            <td>@d.RowNumber</td>
+                            <td>@d.InventoryNumber</td>
+                            <td>
+                                @foreach (var c in d.Changes)
+                                {
+                                    <div class="small">@c.Field: <span class="text-muted">@(c.OldValue ?? "-")</span> → <strong>@c.NewValue</strong></div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        @if (Model.Employees.Any(e => e.Action == ImportEntityAction.Actualizar))
+        {
+            <p class="fw-semibold mb-1 mt-2">Usuarios con cambios</p>
+            <table class="table table-sm">
+                <thead><tr><th>Fila</th><th>Usuario</th><th>Cambios</th></tr></thead>
+                <tbody>
+                    @foreach (var e in Model.Employees.Where(e => e.Action == ImportEntityAction.Actualizar))
+                    {
+                        <tr>
+                            <td>@e.RowNumber</td>
+                            <td>@e.DisplayName</td>
+                            <td>
+                                @foreach (var c in e.Changes)
+                                {
+                                    <div class="small">@c.Field: <span class="text-muted">@(c.OldValue ?? "-")</span> → <strong>@c.NewValue</strong></div>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    }
 </div>
 
-@if (Model.ValidCount > 0)
+@if (Model.HasAnythingToImport)
 {
     <form asp-action="ImportConfirm" method="post">
         <input type="hidden" name="importToken" value="@Model.ImportToken" />
-        <button type="submit" class="btn btn-primary">Confirmar importación de @Model.ValidCount registros válidos</button>
+        <input type="hidden" name="importPasswords" value="@Model.ImportPasswords" />
+        <button type="submit" class="btn btn-primary">Confirmar importación</button>
         <a asp-action="Import" class="btn btn-outline-secondary">Cancelar</a>
     </form>
 }
 else
 {
+    <p class="text-muted">No hay nada nuevo que importar (el archivo ya coincide con lo que existe en el sistema).</p>
     <a asp-action="Import" class="btn btn-outline-secondary">Volver</a>
 }

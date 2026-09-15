@@ -39,14 +39,26 @@
                 </td>
                 <td>@(a.ServiceName ?? "-")</td>
                 <td><span class="badge @(a.Status == AccessStatus.Activo ? "bg-success text-white" : a.Status == AccessStatus.Suspendido ? "bg-warning text-dark" : "bg-secondary text-white")">@a.Status</span></td>
-                <td><span class="password-mask" data-password-slot="access-@a.Id">••••••••</span></td>
+                <td>
+                    @if (a.EncryptedPassword is null)
+                    {
+                        <span class="text-muted small">Sin contraseña registrada</span>
+                    }
+                    else
+                    {
+                        <span class="password-mask" data-password-slot="access-@a.Id">••••••••</span>
+                    }
+                </td>
                 <td class="text-end text-nowrap">
                     @if (canManage)
                     {
-                        <button type="button" class="btn btn-sm btn-outline-secondary"
-                                data-reveal-url="/Accesses/RevealPassword/@a.Id" data-reveal-target="access-@a.Id">Mostrar</button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary"
-                                data-copy-url="/Accesses/CopyPassword/@a.Id">Copiar</button>
+                        @if (a.EncryptedPassword is not null)
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                    data-reveal-url="/Accesses/RevealPassword/@a.Id" data-reveal-target="access-@a.Id">Mostrar</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                    data-copy-url="/Accesses/CopyPassword/@a.Id">Copiar</button>
+                        }
                         <a class="btn btn-sm btn-outline-secondary" asp-controller="Accesses" asp-action="Edit" asp-route-id="@a.Id">Editar</a>
                     }
                 </td>

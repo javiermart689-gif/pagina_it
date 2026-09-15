@@ -366,7 +366,7 @@ public class DevicesController : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = Roles.PuedeEditar)]
-    public async Task<IActionResult> ImportPreview(IFormFile file)
+    public async Task<IActionResult> ImportPreview(IFormFile file, bool importPasswords = false)
     {
         if (file is null || file.Length == 0 || !Path.GetExtension(file.FileName).Equals(".xlsx", StringComparison.OrdinalIgnoreCase))
         {
@@ -375,18 +375,18 @@ public class DevicesController : Controller
         }
 
         await using var stream = file.OpenReadStream();
-        var preview = await _importService.PreviewDevicesAsync(stream);
+        var preview = await _importService.PreviewAsync(stream, file.FileName, importPasswords);
         return View("ImportPreview", preview);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = Roles.PuedeEditar)]
-    public async Task<IActionResult> ImportConfirm(string importToken)
+    public async Task<IActionResult> ImportConfirm(string importToken, bool importPasswords = false)
     {
-        var imported = await _importService.ConfirmDevicesImportAsync(importToken);
-        TempData["SuccessMessage"] = $"Se importaron {imported} equipos correctamente.";
-        return RedirectToAction(nameof(Index));
+        var performedBy = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var result = await _importService.ConfirmAsync(importToken, importPasswords, performedBy);
+        return View("ImportResult", result);
     }
 
     private async Task<DeviceFormViewModel> BuildFormViewModelAsync(DeviceFormViewModel model)

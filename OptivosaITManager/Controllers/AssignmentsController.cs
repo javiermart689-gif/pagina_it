@@ -18,11 +18,13 @@ public class AssignmentsController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IAuditService _auditService;
+    private readonly IAssignmentService _assignmentService;
 
-    public AssignmentsController(ApplicationDbContext context, IAuditService auditService)
+    public AssignmentsController(ApplicationDbContext context, IAuditService auditService, IAssignmentService assignmentService)
     {
         _context = context;
         _auditService = auditService;
+        _assignmentService = assignmentService;
     }
 
     public async Task<IActionResult> Index()
@@ -87,22 +89,8 @@ public class AssignmentsController : Controller
             return View(input);
         }
 
-        var assignment = new DeviceAssignment
-        {
-            DeviceId = device.Id,
-            EmployeeId = input.EmployeeId,
-            AssignedAt = DateTime.UtcNow,
-            AssignedByUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
-            Notes = input.Notes
-        };
-
-        _context.DeviceAssignments.Add(assignment);
-        device.Status = DeviceStatus.Asignado;
-        device.UpdatedAt = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
-        await _auditService.LogAsync(AuditActions.AsignarEquipo, nameof(Device), device.Id.ToString(),
-            $"Equipo {device.InventoryNumber} asignado a empleado #{input.EmployeeId}.");
+        var performedBy = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        await _assignmentService.AssignOrReassignAsync(device, input.EmployeeId, performedBy, input.Notes);
 
         TempData["SuccessMessage"] = "Equipo asignado correctamente.";
         return RedirectToAction("Details", "Devices", new { id = device.Id });
@@ -160,29 +148,8 @@ public class AssignmentsController : Controller
             return View(input);
         }
 
-        // 1. Cerrar la asignación anterior.
-        current!.ReturnedAt = DateTime.UtcNow;
-
-        // 2. Crear la nueva asignación.
-        var newAssignment = new DeviceAssignment
-        {
-            DeviceId = device.Id,
-            EmployeeId = input.NewEmployeeId,
-            AssignedAt = DateTime.UtcNow,
-            AssignedByUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
-            Notes = input.Notes
-        };
-        _context.DeviceAssignments.Add(newAssignment);
-
-        // 3. Actualizar el estado del equipo.
-        device.Status = DeviceStatus.Asignado;
-        device.UpdatedAt = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
-
-        // 4. Registrar la operación en auditoría.
-        await _auditService.LogAsync(AuditActions.ReasignarEquipo, nameof(Device), device.Id.ToString(),
-            $"Equipo {device.InventoryNumber} reasignado de empleado #{current.EmployeeId} a #{input.NewEmployeeId}.");
+        var performedBy = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        await _assignmentService.AssignOrReassignAsync(device, input.NewEmployeeId, performedBy, input.Notes);
 
         TempData["SuccessMessage"] = "Equipo reasignado correctamente.";
         return RedirectToAction("Details", "Devices", new { id = device.Id });

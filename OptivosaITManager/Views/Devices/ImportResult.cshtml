@@ -1,0 +1,44 @@
+@model ExcelImportResultViewModel
+@{
+    ViewData["Title"] = "Importación completada";
+}
+<h3 class="mb-3">✓ Importación completada</h3>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-3">
+        <div class="card-panel h-100">
+            <h6 class="mb-2">Equipos</h6>
+            <p class="mb-1">Creados: <strong class="text-success">@Model.DevicesCreated</strong></p>
+            <p class="mb-0">Actualizados: <strong>@Model.DevicesUpdated</strong></p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card-panel h-100">
+            <h6 class="mb-2">Usuarios</h6>
+            <p class="mb-1">Creados: <strong class="text-success">@Model.EmployeesCreated</strong></p>
+            <p class="mb-0">Actualizados: <strong>@Model.EmployeesUpdated</strong></p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card-panel h-100">
+            <h6 class="mb-2">Asignaciones</h6>
+            <p class="mb-1">Nuevas: <strong class="text-success">@Model.AssignmentsCreated</strong></p>
+            <p class="mb-0">Reasignaciones: <strong>@Model.AssignmentsReassigned</strong></p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card-panel h-100">
+            <h6 class="mb-2">Accesos</h6>
+            <p class="mb-1">Creados: <strong class="text-success">@Model.AccessesCreated</strong></p>
+            <p class="mb-0">Actualizados: <strong>@Model.AccessesUpdated</strong></p>
+        </div>
+    </div>
+</div>
+
+<div class="card-panel mb-3">
+    <p class="mb-1">Omitidos: <strong>@Model.Skipped</strong></p>
+    <p class="mb-0">Errores: <strong class="@(Model.Errors > 0 ? "text-danger" : "")">@Model.Errors</strong></p>
+</div>
+
+<a asp-action="Index" class="btn btn-primary">Ir a Equipos</a>
+<a asp-controller="Employees" asp-action="Index" class="btn btn-outline-secondary">Ir a Usuarios</a>

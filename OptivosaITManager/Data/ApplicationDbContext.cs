@@ -20,6 +20,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Maintenance> MaintenanceRecords => Set<Maintenance>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<TelecomService> TelecomServices => Set<TelecomService>();
+    public DbSet<ImportHistory> ImportHistories => Set<ImportHistory>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -79,6 +80,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             entity.HasIndex(s => s.PhoneNumber);
             entity.HasIndex(s => s.AccountNumber);
             entity.HasIndex(s => s.Provider);
+        });
+
+        builder.Entity<ImportHistory>(entity =>
+        {
+            entity.HasOne(i => i.ImportedByUser).WithMany().HasForeignKey(i => i.ImportedByUserId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasIndex(i => i.ImportedAt);
         });
 
         builder.Entity<Department>().HasIndex(d => d.Name).IsUnique();

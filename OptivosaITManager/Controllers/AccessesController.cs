@@ -190,7 +190,7 @@ public class AccessesController : Controller
     public async Task<IActionResult> RevealPassword(int id)
     {
         var access = await _context.Accesses.FindAsync(id);
-        if (access is null || access.Status == AccessStatus.Baja) return NotFound();
+        if (access is null || access.Status == AccessStatus.Baja || access.EncryptedPassword is null) return NotFound();
 
         string password;
         try
@@ -216,7 +216,7 @@ public class AccessesController : Controller
     public async Task<IActionResult> CopyPassword(int id)
     {
         var access = await _context.Accesses.FindAsync(id);
-        if (access is null || access.Status == AccessStatus.Baja) return NotFound();
+        if (access is null || access.Status == AccessStatus.Baja || access.EncryptedPassword is null) return NotFound();
 
         string password;
         try
